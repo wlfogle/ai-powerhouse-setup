@@ -1,0 +1,26 @@
+# WRESTLING & SPORTS RSS FEEDS FOR MONITORING
+# Add these to your RSS reader or monitoring system
+
+WWE FEEDS:
+https://www.wwe.com/feeds/all
+https://www.wwe.com/feeds/shows/raw
+https://www.wwe.com/feeds/shows/smackdown
+https://www.wwe.com/feeds/shows/nxt
+
+AEW FEEDS:
+https://www.allelitewrestling.com/rss
+https://www.allelitewrestling.com/feed
+
+WRESTLING NEWS:
+https://www.wrestlinginc.com/feed/
+https://pwinsider.com/rss.php
+https://www.fightful.com/wrestling/rss.xml
+
+SAINTS FEEDS:
+https://www.neworleanssaints.com/rss
+https://www.nfl.com/feeds/rss/new-orleans-saints
+
+INSTRUCTIONS:
+- Use these RSS feeds to monitor for new episodes/games
+- Set up alerts for new content
+- Automatically trigger searches when new events are announced

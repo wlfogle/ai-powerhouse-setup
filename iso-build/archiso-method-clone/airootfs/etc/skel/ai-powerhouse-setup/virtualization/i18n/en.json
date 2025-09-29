@@ -1,0 +1,47 @@
+{
+  "app_title": "MobaLiveCD",
+  "welcome_title": "Welcome to MobaLiveCD",
+  "welcome_description": "This program allows you to test your bootable CD-ROM (LiveCD) using QEMU virtualization. You can either set up file associations for ISO images or directly run a LiveCD ISO file.",
+  
+  "association_title": "File Association", 
+  "association_description": "Install right-click menu association",
+  "association_subtitle": "Add 'Open with MobaLiveCD' to ISO file context menu",
+  "install_association": "Install Association",
+  "remove_association": "Remove",
+  
+  "livecd_title": "Start LiveCD",
+  "livecd_description": "Choose and run an ISO image file",
+  "livecd_subtitle": "Browse your disk to select an ISO file and start it with QEMU",
+  "no_iso_selected": "No ISO file selected",
+  "browse": "Browse...",
+  "run_livecd": "Run LiveCD",
+  "starting_qemu": "Starting QEMU...",
+  
+  "menu_help": "Help",
+  "menu_about": "About",
+  "exit": "Exit",
+  
+  "select_iso_title": "Select ISO file",
+  "iso_files": "ISO Image Files",
+  "all_files": "All Files",
+  "cancel": "_Cancel",
+  "open": "_Open",
+  
+  "selected": "Selected: %s",
+  "invalid_iso": "Invalid ISO file selected",
+  "failed_qemu": "Failed to start QEMU: %s",
+  "association_installed": "File association installed successfully!",
+  "association_removed": "File association removed successfully!",
+  "association_install_failed": "Failed to install association: %s",
+  "association_remove_failed": "Failed to remove association: %s",
+  
+  "help_title": "MobaLiveCD - Help",
+  "vm_controls_title": "Virtual Machine Controls",
+  "vm_controls_description": "During emulation, you can use the following keyboard shortcuts:",
+  "usage_tips_title": "Usage Tips",
+  "system_requirements_title": "System Requirements",
+  "close": "Close",
+  
+  "about_comments": "A QEMU-based LiveCD/ISO testing tool for Linux",
+  "about_copyright": "© 2024 Linux Port"
+}

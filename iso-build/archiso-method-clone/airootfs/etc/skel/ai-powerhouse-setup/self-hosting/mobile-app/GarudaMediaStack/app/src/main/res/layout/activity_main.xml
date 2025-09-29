@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_dark"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@mipmap/ic_launcher"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Garuda Media Stack"
+                android:textSize="24sp"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <!-- Available Services Notice -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🚀 Active Services"
+            android:textSize="18sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+            
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Core automation services ready for use"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Working Services Grid -->
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:rowCount="3"
+            android:layout_marginBottom="24dp">
+
+            <!-- Content Management -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_radarr"
+                style="@style/ServiceCardMedium">
+                <LinearLayout style="@style/ServiceCardContentMedium">
+                    <TextView style="@style/ServiceTitleMedium" android:text="🎬 Radarr" />
+                    <TextView style="@style/ServiceSubtitleMedium" android:text="Movie Automation" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_sonarr"
+                style="@style/ServiceCardMedium">
+                <LinearLayout style="@style/ServiceCardContentMedium">
+                    <TextView style="@style/ServiceTitleMedium" android:text="📺 Sonarr" />
+                    <TextView style="@style/ServiceSubtitleMedium" android:text="TV Show Automation" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_lidarr"
+                style="@style/ServiceCardMedium">
+                <LinearLayout style="@style/ServiceCardContentMedium">
+                    <TextView style="@style/ServiceTitleMedium" android:text="🎵 Lidarr" />
+                    <TextView style="@style/ServiceSubtitleMedium" android:text="Music Automation" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Downloads & Search -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_qbittorrent"
+                style="@style/ServiceCardMedium">
+                <LinearLayout style="@style/ServiceCardContentMedium">
+                    <TextView style="@style/ServiceTitleMedium" android:text="⬇️ qBittorrent" />
+                    <TextView style="@style/ServiceSubtitleMedium" android:text="Download Client" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_jackett"
+                style="@style/ServiceCardMedium">
+                <LinearLayout style="@style/ServiceCardContentMedium">
+                    <TextView style="@style/ServiceTitleMedium" android:text="🔍 Jackett" />
+                    <TextView style="@style/ServiceSubtitleMedium" android:text="Indexer Search" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </GridLayout>
+
+    </LinearLayout>
+
+</ScrollView>

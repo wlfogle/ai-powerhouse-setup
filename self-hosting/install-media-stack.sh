@@ -1,11 +1,14 @@
 #!/bin/bash
 
 # Configuration section - Customize these paths for your environment
+# Use environment variables with sensible defaults
+USER_NAME="${USER:-$(whoami)}"
+USER_HOME="${HOME:-$(eval echo ~$USER_NAME)}"
 DATA_ROOT="${DATA_ROOT:-/media}"
-CONFIG_ROOT="${CONFIG_ROOT:-/home/lou/.config}"
-CACHE_ROOT="${CACHE_ROOT:-/home/lou/.cache}"
+CONFIG_ROOT="${CONFIG_ROOT:-$USER_HOME/.config}"
+CACHE_ROOT="${CACHE_ROOT:-$USER_HOME/.cache}"
 LOG_ROOT="${LOG_ROOT:-/var/log}"
-INSTALL_ROOT="/opt"
+INSTALL_ROOT="${INSTALL_ROOT:-/opt}"
 
 # 🏠 Garuda Media Stack - Native Installation
 # Complete media center solution for Garuda Linux
@@ -76,9 +79,9 @@ sudo mkdir -p "$INSTALL_ROOT"/media-stack/{lidarr,readarr,audiobookshelf,pulsarr
 sudo mkdir -p /var/log/media-stack
 
 # Set proper permissions
-sudo chown -R lou:lou "$DATA_ROOT"
-sudo chown -R lou:lou "$CONFIG_ROOT"/media-stack
-sudo chown -R lou:lou /var/log/media-stack
+sudo chown -R "$USER_NAME:$USER_NAME" "$DATA_ROOT"
+sudo chown -R "$USER_NAME:$USER_NAME" "$CONFIG_ROOT"/media-stack
+sudo chown -R "$USER_NAME:$USER_NAME" "$LOG_ROOT"/media-stack
 
 log "Directory structure created ✅"
 

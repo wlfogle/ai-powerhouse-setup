@@ -1,0 +1,138 @@
+# COMPLETE WWE/AEW BROADCAST EVENT DATABASE
+# Use these terms for automated searches and monitoring
+
+=== WWE WEEKLY PROGRAMMING ===
+WWE Monday Night RAW
+WWE Friday Night SmackDown  
+WWE NXT
+WWE Main Event
+WWE Level Up
+WWE Speed
+WWE Bottom Line
+WWE Velocity
+WWE Heat
+WWE Jakked
+WWE Metal
+
+=== WWE PREMIUM LIVE EVENTS (Big 4) ===
+WWE WrestleMania
+WWE Royal Rumble
+WWE SummerSlam
+WWE Survivor Series
+
+=== WWE PREMIUM LIVE EVENTS (Monthly) ===
+WWE Backlash
+WWE Hell in a Cell
+WWE Money in the Bank
+WWE Extreme Rules
+WWE TLC
+WWE Elimination Chamber
+WWE Fastlane
+WWE Clash of Champions
+WWE Night of Champions
+WWE Battleground
+WWE Crown Jewel
+WWE Super ShowDown
+WWE Day 1
+WWE Payback
+WWE Bash in Berlin
+
+=== WWE NXT EVENTS ===
+NXT TakeOver
+NXT Stand & Deliver
+NXT WarGames
+NXT Halloween Havoc
+NXT New Year's Evil
+NXT Great American Bash
+NXT In Your House
+NXT Deadline
+
+=== WWE LEGACY/SPECIAL EVENTS ===
+WWE Saturday Night's Main Event
+WWE Tribute to the Troops
+WWE Draft
+WWE King of the Ring
+WWE Bad Blood
+WWE Judgment Day
+WWE Unforgiven
+WWE No Mercy
+WWE Vengeance
+WWE Great American Bash
+WWE Armageddon
+WWE No Way Out
+WWE Insurrextion
+WWE Rebellion
+
+=== AEW WEEKLY PROGRAMMING ===
+AEW Dynamite
+AEW Rampage
+AEW Collision
+AEW Dark
+AEW Dark Elevation
+
+=== AEW PAY-PER-VIEW EVENTS ===
+AEW Double or Nothing
+AEW All Out
+AEW Full Gear
+AEW Revolution
+AEW Forbidden Door
+AEW WrestleDream
+AEW Worlds End
+AEW Dynasty
+
+=== AEW SPECIAL EVENTS ===
+AEW Grand Slam
+AEW Winter is Coming
+AEW Beach Break
+AEW St. Patrick's Day Slam
+AEW Fight for the Fallen
+AEW Fyter Fest
+AEW Homecoming
+AEW Road Rager
+AEW The First Dance
+AEW Battle of the Belts
+AEW Quake by the Lake
+AEW Maximum Carnage
+AEW Blood & Guts
+
+=== NEW ORLEANS SAINTS GAMES ===
+Saints vs Cowboys
+Saints vs Falcons
+Saints vs Panthers
+Saints vs Buccaneers
+Saints vs Rams
+Saints vs 49ers
+Saints vs Seahawks
+Saints vs Cardinals
+Saints vs Bears
+Saints vs Lions
+Saints vs Packers
+Saints vs Vikings
+Saints vs Bills
+Saints vs Dolphins
+Saints vs Jets
+Saints vs Patriots
+Saints vs Broncos
+Saints vs Chiefs
+Saints vs Raiders
+Saints vs Chargers
+Saints vs Ravens
+Saints vs Bengals
+Saints vs Browns
+Saints vs Steelers
+Saints vs Texans
+Saints vs Colts
+Saints vs Jaguars
+Saints vs Titans
+Saints vs Commanders
+Saints vs Eagles
+Saints vs Giants
+
+Saints Monday Night Football
+Saints Sunday Night Football
+Saints Thursday Night Football
+Saints Playoff Game
+Saints Wild Card
+Saints Divisional Round
+Saints Conference Championship
+Saints Super Bowl

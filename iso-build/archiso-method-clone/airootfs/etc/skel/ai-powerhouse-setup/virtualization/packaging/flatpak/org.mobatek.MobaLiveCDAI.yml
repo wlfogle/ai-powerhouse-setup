@@ -1,0 +1,194 @@
+app-id: org.mobatek.MobaLiveCDAI
+runtime: org.gnome.Platform
+runtime-version: '45'
+sdk: org.gnome.Sdk
+command: mobalivecd-ai
+rename-icon: computer
+
+finish-args:
+  # GUI access
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  
+  # Hardware access for virtualization
+  - --device=kvm
+  - --device=all
+  
+  # File system access for ISOs
+  - --filesystem=host:ro
+  - --filesystem=xdg-download:rw
+  - --filesystem=xdg-documents:rw
+  
+  # Network access for VM networking
+  - --share=network
+  
+  # Audio support for VMs
+  - --socket=pulseaudio
+  
+  # System access for QEMU
+  - --system-talk-name=org.freedesktop.systemd1
+  - --talk-name=org.freedesktop.login1
+  
+  # Process management
+  - --allow=devel
+  
+  # Environment variables
+  - --env=PYTHONPATH=/app/lib/python3.11/site-packages
+
+modules:
+  - name: python3-psutil
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "psutil" --no-build-isolation
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/90/c7/6dc0a455d111f68ee43f27793971cf03fe29b6ef972042549db29eec39a95/psutil-5.9.5.tar.gz
+        sha256: 5410638e4df39c54d957fc51ce03048acd8e6d60abc0f5107af51e5fb566eb3c
+
+  - name: qemu
+    config-opts:
+      - --disable-docs
+      - --disable-gtk
+      - --disable-sdl
+      - --disable-opengl
+      - --enable-kvm
+      - --target-list=x86_64-softmmu,i386-softmmu
+    sources:
+      - type: archive
+        url: https://download.qemu.org/qemu-8.1.0.tar.xz
+        sha256: bf23a1ab80dbf2e374a90dfd6d80f1bb1199a6fe6dd725b5ebe2bb4b5dd5a53c
+    modules:
+      - name: libslirp
+        buildsystem: meson
+        sources:
+          - type: archive
+            url: https://gitlab.freedesktop.org/slirp/libslirp/-/archive/v4.7.0/libslirp-v4.7.0.tar.gz
+            sha256: 9398f0ec5a581d4e1cd6856b88ae83927e458d643788c3an25c7ae7724b48bf7
+
+  - name: mobalivecd-ai
+    buildsystem: simple
+    build-commands:
+      # Install application files
+      - mkdir -p /app/share/mobalivecd-ai
+      - cp -r core ui enhanced_mobalivecd.py /app/share/mobalivecd-ai/
+      
+      # Create launcher script
+      - |
+        cat > /app/bin/mobalivecd-ai << 'EOF'
+        #!/bin/bash
+        cd /app/share/mobalivecd-ai
+        PYTHONPATH=/app/lib/python3.11/site-packages:. python3 enhanced_mobalivecd.py "$@"
+        EOF
+      - chmod +x /app/bin/mobalivecd-ai
+      
+      # Install desktop file
+      - mkdir -p /app/share/applications
+      - |
+        cat > /app/share/applications/org.mobatek.MobaLiveCDAI.desktop << 'EOF'
+        [Desktop Entry]
+        Version=1.0
+        Type=Application
+        Name=MobaLiveCD AI
+        GenericName=ISO Virtualization Tool
+        Comment=AI-Enhanced QEMU-based LiveCD/ISO testing tool with intelligent optimization
+        Icon=org.mobatek.MobaLiveCDAI
+        Exec=mobalivecd-ai %f
+        Terminal=false
+        StartupNotify=true
+        Categories=System;Utility;Emulator;
+        MimeType=application/x-iso9660-image;application/x-cd-image;
+        Keywords=qemu;kvm;virtualization;iso;livecd;ai;machine;vm;
+        EOF
+      
+      # Install icon
+      - mkdir -p /app/share/icons/hicolor/scalable/apps
+      - |
+        cat > /app/share/icons/hicolor/scalable/apps/org.mobatek.MobaLiveCDAI.svg << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <rect width="64" height="64" rx="12" fill="url(#grad1)"/>
+          <circle cx="32" cy="20" r="8" fill="white" opacity="0.9"/>
+          <rect x="16" y="32" width="32" height="16" rx="4" fill="white" opacity="0.9"/>
+          <rect x="20" y="36" width="8" height="2" fill="#667eea"/>
+          <rect x="20" y="40" width="12" height="2" fill="#667eea"/>
+          <rect x="36" y="36" width="8" height="6" rx="2" fill="#764ba2"/>
+          <text x="32" y="58" text-anchor="middle" font-family="sans-serif" font-size="8" fill="white">AI</text>
+        </svg>
+        EOF
+      
+      # Install metainfo
+      - mkdir -p /app/share/metainfo
+      - |
+        cat > /app/share/metainfo/org.mobatek.MobaLiveCDAI.metainfo.xml << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <component type="desktop-application">
+          <id>org.mobatek.MobaLiveCDAI</id>
+          <name>MobaLiveCD AI</name>
+          <summary>AI-Enhanced ISO Virtualization Tool</summary>
+          <description>
+            <p>
+              MobaLiveCD AI is an advanced, AI-enhanced QEMU-based LiveCD/ISO testing tool 
+              that brings intelligent optimization to virtualization. Perfect for testing 
+              Linux distributions, recovery tools, and other bootable images.
+            </p>
+            <p>Features:</p>
+            <ul>
+              <li>🤖 AI-powered ISO detection and optimization</li>
+              <li>⚡ Smart hardware acceleration with KVM support</li>
+              <li>📊 Real-time performance monitoring</li>
+              <li>🎨 Modern GTK4/Libadwaita interface</li>
+              <li>💻 Multi-VM management system</li>
+              <li>🎯 Intelligent resource allocation</li>
+            </ul>
+          </description>
+          <launchable type="desktop-id">org.mobatek.MobaLiveCDAI.desktop</launchable>
+          <provides>
+            <binary>mobalivecd-ai</binary>
+          </provides>
+          <screenshots>
+            <screenshot type="default">
+              <caption>Main application window showing AI-enhanced interface</caption>
+            </screenshot>
+          </screenshots>
+          <url type="homepage">https://github.com/wlfogle/mobalivecd-linux</url>
+          <url type="bugtracker">https://github.com/wlfogle/mobalivecd-linux/issues</url>
+          <metadata_license>CC0-1.0</metadata_license>
+          <project_license>GPL-2.0-or-later</project_license>
+          <releases>
+            <release version="2.0.0" date="2024-09-09">
+              <description>
+                <p>Major AI-enhanced release with intelligent optimization features</p>
+              </description>
+            </release>
+          </releases>
+          <content_rating type="oars-1.1" />
+          <categories>
+            <category>System</category>
+            <category>Utility</category>
+            <category>Emulator</category>
+          </categories>
+          <keywords>
+            <keyword>qemu</keyword>
+            <keyword>kvm</keyword>
+            <keyword>virtualization</keyword>
+            <keyword>iso</keyword>
+            <keyword>livecd</keyword>
+            <keyword>ai</keyword>
+            <keyword>machine</keyword>
+            <keyword>vm</keyword>
+          </keywords>
+        </component>
+        EOF
+      
+    sources:
+      - type: git
+        url: https://github.com/wlfogle/mobalivecd-linux.git
+        tag: v2.0.0

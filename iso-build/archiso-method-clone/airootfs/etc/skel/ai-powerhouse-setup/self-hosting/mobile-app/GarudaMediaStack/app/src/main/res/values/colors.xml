@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Garuda Theme Colors -->
+    <color name="background_dark">#FF1A1A1A</color>
+    <color name="card_background">#FF2D2D2D</color>
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#FFCCCCCC</color>
+    <color name="accent">#FF4CAF50</color>
+    
+    <!-- Service Colors -->
+    <color name="jellyfin_primary">#FF00A4DC</color>
+    <color name="radarr_primary">#FFFFC230</color>
+    <color name="sonarr_primary">#FF35C5F0</color>
+    <color name="lidarr_primary">#FFE25B3C</color>
+    <color name="jackett_primary">#FF9117FF</color>
+</resources>

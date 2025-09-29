@@ -1,0 +1,1944 @@
+arch-repo: https://geo.mirror.pkgbuild.com
+impl: http://github.com/blend-os/tracks/raw/main
+repo: https://pkg-repo.blendos.co
+track: plasma
+
+packages:
+  # Essential blendOS packages
+  - nvidia-dkms
+  - nvidia-prime
+  - switcheroo-control
+  
+  # Base system packages
+  - networkmanager
+  - wireguard-tools
+  - openssh
+  - git
+  - base-devel
+  - curl
+  - wget
+  - htop
+  - tree
+  - unzip
+  - rsync
+  
+  # KDE Plasma Desktop (X11 focused for dual GPU)
+  - plasma-desktop
+  - plasma-nm
+  - plasma-pa
+  - sddm
+  - kwin-x11
+  - dolphin
+  - konsole
+  - firefox
+  - kde-cli-tools
+  - kdialog
+  - spectacle
+  - ark
+  - kwrite
+  - kitty
+  
+  # KDE Panel Customization for Garuda Dragonized style
+  - kdeplasma-addons
+  - kdeconnect
+  - kweather
+  - ttf-firacode-nerd
+  
+  # X11 and VNC/Remote Access
+  - xorg-server
+  - xorg-server-xvfb
+  - x11vnc
+  - tigervnc
+  - xorg-xwininfo
+  - xorg-xinit
+  
+  # Virtualization + Looking Glass (dual GPU setup)
+  - qemu-desktop
+  - qemu-system-x86_64
+  - qemu-img
+  - libvirt
+  - virt-manager
+  - edk2-ovmf
+  - bridge-utils
+  
+  # Container ecosystem (proven from awesome-stack)
+  - podman
+  - podman-docker
+  - podman-compose
+  - postgresql
+  - redis
+  - docker-compose
+  - postgresql-libs
+  - python-setuptools
+  - python-wheel
+  - docker-buildx
+  - fuse-overlayfs
+  - python-redis
+  - python-psycopg2
+  - buildah
+  - skopeo
+  
+  # Media processing & hardware acceleration
+  - ffmpeg
+  - intel-media-driver
+  - libva-intel-driver
+  - nvidia-utils
+  - cuda
+  
+  # Native media stack packages (proven from garuda-media-stack)
+  - qbittorrent
+  - calibre
+  - python-flask
+  - python-pip
+  - python-requests
+  - nodejs
+  - npm
+  - mono
+  - aspnet-runtime-6.0
+  - dotnet-runtime-6.0
+  
+  # Development tools
+  - python
+  - rust
+  - go
+  - sqlite
+  
+  # Ghost Mode dependencies
+  - python-pyqt5
+  - cronie
+  - iptables-nft
+  - nftables
+  
+  # System monitoring & management
+  - prometheus
+  - grafana
+  - nginx
+  - certbot
+  
+  # Security & networking
+  - borgbackup
+  - age
+  - gnupg
+  
+  # Additional utilities
+  - fastfetch
+  - flatpak
+  
+services:
+  - NetworkManager.service
+  - switcheroo-control
+  - libvirtd.service
+  - sshd.service
+  - sddm.service
+  - cronie.service
+  
+  # WireGuard with rotation
+  - wg-quick@wg0.service
+  
+  # Native media services (proven from garuda-media-stack)
+  - qbittorrent.service
+  
+  # Virtual displays for remote access
+  - xvfb-display@99.service
+  - xvfb-display@100.service
+  - xvfb-display@101.service
+  - xvfb-display@102.service
+  
+  # VNC services
+  - xvfb-vnc@99.service
+  - xvfb-vnc@100.service
+  - xvfb-vnc@101.service
+  - xvfb-vnc@102.service
+  
+  # Web VNC services
+  
+  # Container stacks
+  - media-stack.service
+  - api-masking-proxy.service
+  - ghost-mode-monitor.service
+  
+  # BlendOS Awesome Stack Services
+  - awesome-stack-media.service
+  - awesome-stack-productivity.service
+  - awesome-stack-monitoring.service
+  - postgresql.service
+  - redis.service
+
+files:
+  # Plasma X11 session file (dual GPU optimized)
+  - path: /usr/share/xsessions/plasmax11.desktop
+    content: |
+      [Desktop Entry]
+      Exec=env QT_QPA_PLATFORM=xcb prime-run /usr/bin/startplasma-x11
+      TryExec=/usr/bin/startplasma-x11
+      DesktopNames=KDE
+      Name=Plasma (X11)
+      Comment=Plasma by KDE (X11 - Dual GPU Optimized)
+      X-KDE-PluginInfo-Version=6.4.5
+      
+  # SDDM configuration for X11 default
+  - path: /etc/sddm.conf.d/awesome-stack.conf
+    content: |
+      [General]
+      DisplayServer=x11
+      
+      [Autologin]
+      Session=plasmax11
+      
+      [X11]
+      ServerArguments=-nolisten tcp -dpi 96
+      MinimumVT=7
+      
+      [Theme]
+      Current=breeze
+      
+  # WireGuard server configuration with rotation
+  - path: /etc/wireguard/wg0.conf
+    mode: '0600'
+    content: |
+      [Interface]
+      PrivateKey = REPLACE_WITH_GENERATED_KEY
+      Address = 10.0.0.1/24
+      ListenPort = 51820
+      SaveConfig = false
+      PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; iptables -A INPUT -p udp --dport 51820 -j ACCEPT
+      PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE; iptables -D INPUT -p udp --dport 51820 -j ACCEPT
+      
+      # Client configurations managed by rotation script
+      
+  # WireGuard rotation cron (every 6 hours for security)
+  - path: /etc/cron.d/wireguard-rotation
+    content: |
+      # WireGuard key rotation for security (every 6 hours)
+      0 */6 * * * root /usr/local/bin/wireguard-rotate.sh auto >> /var/log/wg-rotation.log 2>&1
+      
+  # API Masking Proxy Service (proven from awesome-stack)
+  - path: /etc/systemd/system/api-masking-proxy.service
+    content: |
+      [Unit]
+      Description=API Masking Proxy for Warp Terminal
+      After=network.target
+      Wants=network.target
+
+      [Service]
+      Type=simple
+      User=loufogle
+      Group=loufogle
+      WorkingDirectory=/opt/awesome-stack/api-masking
+      ExecStart=/usr/bin/python3 /opt/awesome-stack/api-masking/api-mask-proxy.py
+      Restart=always
+      RestartSec=5
+      Environment=PYTHONUNBUFFERED=1
+
+      [Install]
+      WantedBy=multi-user.target
+      
+  # Ghost Mode configuration directory setup
+  # Xvfb templated unit (dual GPU optimized)
+  - path: /etc/systemd/system/xvfb-display@.service
+    content: |
+      [Unit]
+      Description=Xvfb Virtual Display :%i (GPU Optimized)
+      After=network.target
+      Wants=network.target
+
+      [Service]
+      Type=simple
+      User=root
+      Group=root
+      ExecStart=/usr/bin/Xvfb :%i -screen 0 1920x1080x24 -ac +extension GLX +render -noreset -listen tcp
+      ExecReload=/bin/kill -USR1 $MAINPID
+      KillMode=mixed
+      Restart=always
+      RestartSec=5
+      Environment=DISPLAY=:%i
+      Environment=NVIDIA_VISIBLE_DEVICES=all
+
+      [Install]
+      WantedBy=multi-user.target
+
+  # VNC templated unit
+  - path: /etc/systemd/system/xvfb-vnc@.service
+    content: |
+      [Unit]
+      Description=VNC Server for Xvfb Display :%i
+      After=xvfb-display@%i.service
+      Requires=xvfb-display@%i.service
+
+      [Service]
+      Type=simple
+      User=root
+      Group=root
+      Environment=DISPLAY=:%i
+      ExecStartPre=/bin/bash -c 'sleep 2'
+      ExecStart=/usr/bin/x11vnc -forever -shared -rfbport 59%i -display :%i -noxdamage -passwd /etc/vnc/vncpasswd
+      Restart=always
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+
+  # noVNC templated unit
+  - path: /etc/systemd/system/xvfb-novnc@.service
+    content: |
+      [Unit]
+      Description=noVNC Web VNC Client for Display :%i
+      After=xvfb-vnc@%i.service
+      Requires=xvfb-vnc@%i.service
+
+      [Service]
+      Type=simple
+      User=root
+      Group=root
+      Restart=always
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+
+  # Media stack compose service (hybrid approach)
+  - path: /etc/systemd/system/media-stack.service
+    content: |
+      [Unit]
+      Description=Awesome Media Stack (Hybrid Native + Container)
+      Wants=network-online.target
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      WorkingDirectory=/opt/awesome-stack/media
+      ExecStart=/usr/bin/podman-compose up -d
+      TimeoutStartSec=300
+
+      [Install]
+      WantedBy=multi-user.target
+
+  # Container-based services compose file (for services not available as native packages)
+  - path: /opt/awesome-stack/media/docker-compose.yml
+    content: |
+      version: '3.8'
+      
+      services:
+        # Additional media services not available as Arch packages
+        jellyfin:
+          image: jellyfin/jellyfin:latest
+          container_name: jellyfin
+          network_mode: host
+          environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Etc/UTC
+            - NVIDIA_VISIBLE_DEVICES=all
+            - NVIDIA_DRIVER_CAPABILITIES=all
+          volumes:
+            - /opt/awesome-stack/media/jellyfin:/config
+            - /mnt/media:/media
+            - /tmp/jellyfin-cache:/cache
+          devices:
+            - /dev/dri:/dev/dri
+          restart: unless-stopped
+
+        # Request management
+        overseerr:
+          image: sctx/overseerr:latest
+          container_name: overseerr
+          environment:
+            - LOG_LEVEL=debug
+            - TZ=Etc/UTC
+            - PORT=5055
+          volumes:
+            - /opt/awesome-stack/media/overseerr:/app/config
+          ports:
+            - "5055:5055"
+          restart: unless-stopped
+
+        # Advanced services
+        lidarr:
+          image: linuxserver/lidarr:latest
+          container_name: lidarr
+          environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Etc/UTC
+          volumes:
+            - /opt/awesome-stack/media/lidarr:/config
+            - /mnt/downloads:/downloads
+            - /mnt/media/music:/music
+          ports:
+            - "8686:8686"
+          restart: unless-stopped
+
+        # Subtitle management
+        bazarr:
+          image: linuxserver/bazarr:latest
+          container_name: bazarr
+          environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Etc/UTC
+          volumes:
+            - /opt/awesome-stack/media/bazarr:/config
+            - /mnt/media/movies:/movies
+            - /mnt/media/tv:/tv
+          ports:
+            - "6767:6767"
+          restart: unless-stopped
+
+  # API Masking Proxy Python script (proven from awesome-stack)
+  - path: /opt/awesome-stack/api-masking/api-mask-proxy.py
+    mode: '0755'
+    content: |
+      #!/usr/bin/env python3
+      """
+      API Masking Proxy Server
+      Masks API requests to prevent tracking by Warp Terminal
+      """
+      
+      import asyncio
+      import aiohttp
+      import random
+      import json
+      import uuid
+      from aiohttp import web, ClientTimeout
+      from datetime import datetime
+      from urllib.parse import urlparse
+      
+      class APIMaskingProxy:
+          def __init__(self, port=8080):
+              self.port = port
+              self.user_agents = [
+                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+              ]
+              
+          def get_random_user_agent(self):
+              return random.choice(self.user_agents)
+          
+          def add_request_jitter(self):
+              return random.uniform(0.1, 2.0)
+          
+          async def proxy_request(self, request):
+              target_url = request.match_info.get('path', '')
+              
+              if not target_url.startswith('http'):
+                  return web.Response(text="Invalid URL", status=400)
+              
+              await asyncio.sleep(self.add_request_jitter())
+              
+              try:
+                  body = await request.read()
+                  
+                  headers = {
+                      'User-Agent': self.get_random_user_agent(),
+                      'Accept': 'application/json, text/plain, */*',
+                      'Accept-Language': 'en-US,en;q=0.9',
+                      'X-Request-ID': str(uuid.uuid4())
+                  }
+                  
+                  for key, value in request.headers.items():
+                      if key.lower() in ['authorization', 'content-type', 'anthropic-version']:
+                          headers[key] = value
+                  
+                  timeout = ClientTimeout(total=30)
+                  async with aiohttp.ClientSession(timeout=timeout) as session:
+                      async with session.request(
+                          method=request.method,
+                          url=target_url,
+                          headers=headers,
+                          data=body,
+                          allow_redirects=False
+                      ) as response:
+                          response_body = await response.read()
+                          return web.Response(
+                              body=response_body,
+                              status=response.status,
+                              headers={
+                                  'Content-Type': response.headers.get('Content-Type', 'application/json'),
+                                  'Content-Length': str(len(response_body))
+                              }
+                          )
+                          
+              except Exception as e:
+                  return web.Response(text=f"Proxy error: {str(e)}", status=500)
+          
+          async def start_server(self):
+              app = web.Application()
+              app.router.add_route('*', '/proxy/{path:.*}', self.proxy_request)
+              app.router.add_get('/health', lambda r: web.Response(text="OK"))
+              
+              runner = web.AppRunner(app)
+              await runner.setup()
+              
+              site = web.TCPSite(runner, '127.0.0.1', self.port)
+              await site.start()
+              
+              print(f"API Masking Proxy started on http://127.0.0.1:{self.port}")
+              
+              try:
+                  await asyncio.Future()
+              except KeyboardInterrupt:
+                  await runner.cleanup()
+      
+      if __name__ == '__main__':
+          proxy = APIMaskingProxy(port=8080)
+          asyncio.run(proxy.start_server())
+
+  # GPU switching script for dual GPU (RTX 4080 + Intel iGPU)
+  - path: /usr/local/bin/gpu-switch
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      # GPU switching script for NVIDIA Prime (RTX 4080 + Intel iGPU)
+      
+      case "$1" in
+          nvidia)
+              prime-select nvidia
+              echo "Switched to NVIDIA RTX 4080 (high performance)"
+              echo "Reboot recommended for full effect"
+              ;;
+          intel)
+              prime-select intel
+              echo "Switched to Intel iGPU (power saving)"
+              echo "Reboot recommended for full effect"
+              ;;
+          status)
+              echo "Current GPU configuration:"
+              prime-select query
+              echo ""
+              echo "Hardware detected:"
+              lspci | grep -E "(VGA|3D)"
+              echo ""
+              echo "Available options:"
+              echo "  nvidia - Use NVIDIA RTX 4080 (high performance, transcoding)"
+              echo "  intel  - Use Intel iGPU (power saving, basic tasks)"
+              ;;
+          *)
+              echo "Usage: $0 {nvidia|intel|status}"
+              echo ""
+              $0 status
+              ;;
+      esac
+
+  # WireGuard rotation script (proven from awesome-stack)
+  - path: /usr/local/bin/wireguard-rotate.sh
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      # WireGuard Key Rotation Script - Enhanced Security
+      
+      WG_CONFIG="/etc/wireguard/wg0.conf"
+      LOG_FILE="/var/log/wg-rotation.log"
+      CLIENT_NAME="${1:-awesome-stack-client}"
+      
+      log() {
+          echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+      }
+      
+      rotate_keys() {
+          log "Starting WireGuard key rotation for $CLIENT_NAME"
+          
+          # Generate new server keys
+          SERVER_PRIVATE=$(wg genkey)
+          SERVER_PUBLIC=$(echo "$SERVER_PRIVATE" | wg pubkey)
+          
+          # Generate new client keys
+          CLIENT_PRIVATE=$(wg genkey)
+          CLIENT_PUBLIC=$(echo "$CLIENT_PRIVATE" | wg pubkey)
+          
+          # Backup current config
+          cp "$WG_CONFIG" "${WG_CONFIG}.backup.$(date +%s)"
+          
+          # Update server config
+          cat > "$WG_CONFIG" << EOF
+      [Interface]
+      PrivateKey = $SERVER_PRIVATE
+      Address = 10.0.0.1/24
+      ListenPort = 51820
+      SaveConfig = false
+      PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+      PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+      [Peer]
+      PublicKey = $CLIENT_PUBLIC
+      AllowedIPs = 10.0.0.2/32
+      PersistentKeepalive = 25
+      EOF
+          
+          # Generate client config
+          mkdir -p /etc/wireguard/clients
+          cat > "/etc/wireguard/clients/${CLIENT_NAME}.conf" << EOF
+      [Interface]
+      PrivateKey = $CLIENT_PRIVATE
+      Address = 10.0.0.2/32
+      DNS = 1.1.1.1, 8.8.8.8
+
+      [Peer]
+      PublicKey = $SERVER_PUBLIC
+      Endpoint = YOUR_SERVER_IP:51820
+      AllowedIPs = 0.0.0.0/0
+      PersistentKeepalive = 25
+      EOF
+          
+          # Restart WireGuard
+          systemctl restart wg-quick@wg0
+          
+          log "Key rotation completed successfully"
+          log "New server public key: $SERVER_PUBLIC"
+          log "Client config available at: /etc/wireguard/clients/${CLIENT_NAME}.conf"
+      }
+      
+      case "${1:-auto}" in
+          "auto"|"rotate")
+              rotate_keys
+              ;;
+          *)
+              echo "Usage: $0 [client-name]"
+              echo "Rotates WireGuard keys for enhanced security"
+              ;;
+      esac
+
+  # Ghost Mode scripts installation
+  - path: /usr/local/bin/ghost-mode
+    mode: '0755'  
+    content: |
+      #!/bin/bash
+      # 🥷 Ghost Mode - Complete Online Invisibility (Simplified for blendOS)
+      
+      GHOST_CONFIG="$HOME/.config/ghost-mode"
+      
+      log_action() {
+          echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$GHOST_CONFIG/ghost-mode.log"
+      }
+      
+      activate_ghost_mode() {
+          mkdir -p "$GHOST_CONFIG"
+          echo "🥷 Activating Ghost Mode..."
+          
+          # Disable IPv6 completely (prevent leaks)
+          sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+          sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+          sudo sysctl -w net.ipv6.conf.lo.disable_ipv6=1
+          
+          # Force DNS through VPN (prevent DNS leaks)
+          sudo iptables -I OUTPUT -p udp --dport 53 ! -o wg0 -j REJECT
+          sudo iptables -I OUTPUT -p tcp --dport 53 ! -o wg0 -j REJECT
+          
+          # Start WireGuard if not running
+          if ! systemctl is-active --quiet wg-quick@wg0; then
+              sudo systemctl start wg-quick@wg0
+          fi
+          
+          log_action "Ghost mode activated"
+          echo "✅ Ghost Mode: ACTIVE - You are now invisible online"
+          echo "   🔒 VPN: ACTIVE"
+          echo "   🚫 IPv6: DISABLED"
+          echo "   🛡️ DNS: VPN-ONLY"
+      }
+      
+      deactivate_ghost_mode() {
+          echo "🛑 Deactivating Ghost Mode..."
+          
+          # Remove DNS blocks
+          sudo iptables -D OUTPUT -p udp --dport 53 ! -o wg0 -j REJECT 2>/dev/null || true
+          sudo iptables -D OUTPUT -p tcp --dport 53 ! -o wg0 -j REJECT 2>/dev/null || true
+          
+          log_action "Ghost mode deactivated" 
+          echo "✅ Ghost Mode: DEACTIVATED"
+      }
+      
+      show_status() {
+          echo "📊 Ghost Mode Status:"
+          if ip link show wg0 >/dev/null 2>&1; then
+              echo "  🔒 VPN: ACTIVE"
+          else
+              echo "  🔒 VPN: INACTIVE"
+          fi
+          
+          if sysctl net.ipv6.conf.all.disable_ipv6 2>/dev/null | grep -q "= 1"; then
+              echo "  🚫 IPv6: DISABLED"
+          else
+              echo "  🚫 IPv6: ENABLED (LEAK RISK)"
+          fi
+      }
+      
+      case "${1:-start}" in
+          "start") activate_ghost_mode ;;
+          "stop") deactivate_ghost_mode ;;
+          "status") show_status ;;
+          *) echo "Usage: ghost-mode [start|stop|status]" ;;
+      esac
+
+  # Ghost Mode toggle script  
+  - path: /usr/local/bin/ghost-toggle
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      # 🥷 Ghost Mode Toggle - Simple on/off
+      
+      GHOST_CONFIG="$HOME/.config/ghost-mode"
+      STATUS_FILE="$GHOST_CONFIG/status"
+      
+      mkdir -p "$GHOST_CONFIG"
+      
+      get_status() {
+          [ -f "$STATUS_FILE" ] && [ "$(cat "$STATUS_FILE")" = "active" ]
+      }
+      
+      if get_status; then
+          ghost-mode stop
+          echo "inactive" > "$STATUS_FILE"
+          echo "✅ Ghost Mode deactivated"
+      else
+          ghost-mode start
+          echo "active" > "$STATUS_FILE" 
+          echo "✅ Ghost Mode activated"
+      fi
+
+  # Awesome Stack management script
+  - path: /usr/local/bin/awesome-stack
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      # 🚀 Awesome Stack Management Script
+      
+      STACK=${1:-all}
+      ACTION=${2:-status}
+      
+      STACKS=("media")
+      
+      case $ACTION in
+          "start")
+              echo "🚀 Starting Awesome Stack..."
+              systemctl start media-stack.service
+              systemctl start api-masking-proxy.service
+              echo "✅ Awesome Stack started"
+              ;;
+          "stop")
+              echo "🛑 Stopping Awesome Stack..."
+              systemctl stop media-stack.service
+              systemctl stop api-masking-proxy.service
+              echo "✅ Awesome Stack stopped"
+              ;;
+          "restart")
+              echo "🔄 Restarting Awesome Stack..."
+              systemctl restart media-stack.service
+              systemctl restart api-masking-proxy.service
+              echo "✅ Awesome Stack restarted"
+              ;;
+          "status")
+              echo "📊 BlendOS Awesome Stack Status"
+              echo "================================"
+              date
+              echo ""
+              
+              echo "🌐 Network:"
+              ip addr show | grep -E "inet.*wl|inet.*eth" | head -3
+              
+              echo ""
+              echo "📦 Services:"
+              for service in "${services[@]}"; do
+                  if systemctl is-active --quiet "${service}.service" 2>/dev/null; then
+                      echo "  ✅ $service - Active"
+                  else
+                      echo "  ❌ $service - Inactive"
+                  fi
+              done
+              
+              echo ""
+              echo "🔒 VPN Status:"
+              if ip link show wg0 >/dev/null 2>&1; then
+                  echo "  ✅ WireGuard VPN - Active"
+              else
+                  echo "  ❌ WireGuard VPN - Inactive"
+              fi
+              
+              echo ""
+              echo "🖥️ Virtual Displays:"
+              for display in {99..102}; do
+                  if systemctl is-active --quiet xvfb-display@${display}.service; then
+                      echo "  ✅ Display :$display - VNC: localhost:$(( 5900 + display )), Web: http://localhost:$(( 6080 + display ))"
+                  fi
+              done
+              
+              echo ""
+              echo "🎮 GPU Status:"
+              prime-select query 2>/dev/null || echo "  GPU switching not configured"
+              
+              echo ""
+              echo "🐳 Container Services:"
+              podman ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null | head -5
+              
+              echo ""
+              echo "🌐 Service URLs:"
+              echo "  📺 Sonarr:        http://localhost:8989"
+              echo "  🎬 Radarr:        http://localhost:7878"
+              echo "  🔍 Jackett:       http://localhost:9117"
+              echo "  ⬇️ qBittorrent:   http://localhost:8080"
+              echo "  🎥 Jellyfin:      http://localhost:8096"
+              echo "  🎯 Overseerr:     http://localhost:5055"
+              echo "  🎵 Lidarr:        http://localhost:8686"
+              echo "  🔧 API Proxy:     http://localhost:8080"
+              ;;
+          *)
+              echo "Usage: $0 [stack] {start|stop|restart|status}"
+              ;;
+      esac
+
+  # VNC password file
+  - path: /etc/vnc/vncpasswd
+    mode: '0600'
+    content: |
+      awesomestack123
+
+commands:
+  # Set up NVIDIA prime for dual GPU (RTX 4080 + Intel iGPU)
+  - prime-select nvidia
+  # Enable IP forwarding for WireGuard
+  - echo 'net.ipv4.ip_forward = 1' >> /etc/sysctl.conf
+  - echo 'net.ipv6.conf.all.forwarding = 1' >> /etc/sysctl.conf
+  # Create directory structure
+  - mkdir -p /opt/awesome-stack/{media,api-masking} /mnt/{media/{movies,tv,music,books},downloads} /etc/vnc /var/log
+  # Set ownership
+  - chown -R 1000:1000 /opt/awesome-stack /mnt/media /mnt/downloads
+  # Make desktop shortcuts executable and set ownership
+  - chmod +x /home/loufogle/Desktop/*.desktop
+  - chown loufogle:loufogle /home/loufogle/Desktop/*.desktop
+  - mkdir -p /home/loufogle/Desktop/Media-Stack-Services
+  - chown -R loufogle:loufogle /home/loufogle/Desktop/
+  # Create session directories and set permissions
+  - mkdir -p /usr/share/xsessions /usr/share/wayland-sessions
+  - chmod 755 /usr/share/xsessions /usr/share/wayland-sessions
+  - update-desktop-database /usr/share/applications || true
+  # Remove conflicting SDDM config and restart service
+  - rm -f /etc/sddm.conf.d/awesome-stack.conf || true
+  - systemctl enable sddm.service || true
+  - chown root:root /etc/vnc/vncpasswd
+  # Download Warp Terminal package
+  - curl -L "https://app.warp.dev/download?package=pacman" -o /tmp/warp-terminal.pkg.tar.zst || true
+  # Install Warp Terminal from downloaded package
+  - pacman -U --noconfirm /tmp/warp-terminal.pkg.tar.zst || true
+  # Set up Warp Terminal repository for future updates
+  - sh -c "echo -e '\n[warpdotdev]\nServer = https://releases.warp.dev/linux/pacman/\$repo/\$arch' >> /etc/pacman.conf" || true
+  - pacman-key -r "linux-maintainers@warp.dev" || true
+  - pacman-key --lsign-key "linux-maintainers@warp.dev" || true
+  # Generate WireGuard keys
+  - /usr/local/bin/wireguard-rotate.sh awesome-stack-client || true
+  # Create ghost mode config directory
+  - mkdir -p /home/loufogle/.config/ghost-mode && chown -R loufogle:loufogle /home/loufogle/.config/ghost-mode
+  # Create BlendOS Awesome Stack directory structure
+  - mkdir -p /opt/awesome-stack/{stacks/{media,productivity,monitoring},configs,data}
+  - chown -R 1000:1000 /opt/awesome-stack
+  # Make desktop shortcuts executable and set ownership
+  - chmod +x /home/loufogle/Desktop/*.desktop
+  - chown loufogle:loufogle /home/loufogle/Desktop/*.desktop
+  - mkdir -p /home/loufogle/Desktop/Media-Stack-Services
+  - chown -R loufogle:loufogle /home/loufogle/Desktop/
+  # Create session directories and set permissions
+  - mkdir -p /usr/share/xsessions /usr/share/wayland-sessions
+  - chmod 755 /usr/share/xsessions /usr/share/wayland-sessions
+  - update-desktop-database /usr/share/applications || true
+  # Remove conflicting SDDM config and restart service
+  - rm -f /etc/sddm.conf.d/awesome-stack.conf || true
+  - systemctl enable sddm.service || true
+  # Copy BlendOS Awesome Stack repository
+  - cp -r /home/loufogle/repositories/blendos-awesome-stack/* /opt/awesome-stack/ || true
+  - chown -R 1000:1000 /opt/awesome-stack
+  # Make desktop shortcuts executable and set ownership
+  - chmod +x /home/loufogle/Desktop/*.desktop
+  - chown loufogle:loufogle /home/loufogle/Desktop/*.desktop
+  - mkdir -p /home/loufogle/Desktop/Media-Stack-Services
+  - chown -R loufogle:loufogle /home/loufogle/Desktop/
+  # Create session directories and set permissions
+  - mkdir -p /usr/share/xsessions /usr/share/wayland-sessions
+  - chmod 755 /usr/share/xsessions /usr/share/wayland-sessions
+  - update-desktop-database /usr/share/applications || true
+  # Remove conflicting SDDM config and restart service
+  - rm -f /etc/sddm.conf.d/awesome-stack.conf || true
+  - systemctl enable sddm.service || true
+
+
+aur-packages:
+  - plasma6-applets-window-buttons
+  - plasma6-applets-window-title
+  - plasma6-applets-panelcolorizer-git
+  - latte-dock-git
+  - radarr
+  - sonarr
+  - jackett
+  - looking-glass
+  - dr460nized-kde-theme-git
+  - sweet-kde-theme-git
+
+files:
+  # BlendOS Awesome Stack Media Service
+  - path: /etc/systemd/system/awesome-stack-media.service
+    content: |
+      [Unit]
+      Description=BlendOS Awesome Stack - Media Stack
+      Wants=network-online.target
+      After=network-online.target
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      WorkingDirectory=/opt/awesome-stack/stacks/media
+      ExecStart=/usr/bin/podman-compose up -d
+      ExecStop=/usr/bin/podman-compose down
+      ExecReload=/usr/bin/podman-compose restart
+      TimeoutStartSec=300
+
+      [Install]
+      WantedBy=multi-user.target
+
+  # BlendOS Awesome Stack Management Script
+  - path: /usr/local/bin/awesome-stack
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      # 🚀 BlendOS Awesome Stack Management
+      
+      STACK=${1:-all}
+      ACTION=${2:-status}
+      
+      case $ACTION in
+          "start")
+              echo "🚀 Starting BlendOS Awesome Stack ($STACK)..."
+              if [[ "$STACK" == "all" || "$STACK" == "media" ]]; then
+                  systemctl start awesome-stack-media.service
+              fi
+              if [[ "$STACK" == "all" || "$STACK" == "productivity" ]]; then
+                  systemctl start awesome-stack-productivity.service
+              fi
+              echo "✅ BlendOS Awesome Stack started"
+              ;;
+          "stop")
+              echo "🛑 Stopping BlendOS Awesome Stack ($STACK)..."
+              if [[ "$STACK" == "all" || "$STACK" == "media" ]]; then
+                  systemctl stop awesome-stack-media.service
+              fi
+              if [[ "$STACK" == "all" || "$STACK" == "productivity" ]]; then
+                  systemctl stop awesome-stack-productivity.service
+              fi
+              echo "✅ BlendOS Awesome Stack stopped"
+              ;;
+          "status"|*)
+              echo "📊 BlendOS Awesome Stack Status"
+              echo "================================"
+              date
+              echo ""
+              
+              echo "🎬 Media Stack:"
+              systemctl is-active --quiet awesome-stack-media.service && echo "  ✅ Media Stack - Active" || echo "  ❌ Media Stack - Inactive"
+              
+              echo ""
+              echo "📋 Productivity Stack:"
+              systemctl is-active --quiet awesome-stack-productivity.service && echo "  ✅ Productivity Stack - Active" || echo "  ❌ Productivity Stack - Inactive"
+              
+              echo ""
+              echo "💾 Infrastructure:"
+              systemctl is-active --quiet postgresql.service && echo "  ✅ PostgreSQL - Active" || echo "  ❌ PostgreSQL - Inactive"
+              systemctl is-active --quiet redis.service && echo "  ✅ Redis - Active" || echo "  ❌ Redis - Inactive"
+              
+              echo ""
+              echo "🐳 Container Status:"
+              podman ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}" 2>/dev/null | head -10
+              ;;
+      esac
+
+  # Directory structure for BlendOS Awesome Stack  
+  - path: /opt/awesome-stack/README.md
+    content: |
+      # BlendOS Awesome Stack Installation
+      
+      This directory contains your BlendOS Awesome Stack installation.
+      
+      ## Structure:
+      - `/opt/awesome-stack/stacks/` - Container stack definitions
+      - `/opt/awesome-stack/configs/` - Service configurations  
+      - `/opt/awesome-stack/data/` - Persistent data volumes
+      
+      ## Management:
+      - `awesome-stack status` - Show system status
+      - `awesome-stack media start` - Start media stack
+      - `awesome-stack all restart` - Restart everything
+      
+      For full documentation: https://github.com/wlfogle/blendos-awesome-stack
+
+
+  # Desktop shortcuts for BlendOS Awesome Stack services
+  - path: /home/loufogle/Desktop/Awesome-Stack-Dashboard.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🚀 Awesome Stack Dashboard
+      Comment=Main dashboard for all services
+      Exec=firefox http://localhost:8540
+      Icon=applications-internet
+      Terminal=false
+      Categories=Network;WebBrowser;
+
+  - path: /home/loufogle/Desktop/Media-Services.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🎬 Media Services
+      Comment=Quick access to media management
+      Exec=firefox "http://localhost:8110" "http://localhost:8111" "http://localhost:8112" "http://localhost:8200"
+      Icon=applications-multimedia
+      Terminal=false
+      Categories=AudioVideo;
+
+  - path: /home/loufogle/Desktop/Jellyfin.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🎥 Jellyfin Media Server
+      Comment=Stream your media collection
+      Exec=firefox http://localhost:8200
+      Icon=applications-multimedia
+      Terminal=false
+      Categories=AudioVideo;
+
+  - path: /home/loufogle/Desktop/Plex.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🎬 Plex Media Server
+      Comment=Plex media streaming
+      Exec=firefox http://localhost:8201
+      Icon=applications-multimedia
+      Terminal=false
+      Categories=AudioVideo;
+
+  - path: /home/loufogle/Desktop/Sonarr.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=📺 Sonarr (TV Series)
+      Comment=Manage TV series downloads
+      Exec=firefox http://localhost:8110
+      Icon=applications-multimedia
+      Terminal=false
+      Categories=Network;
+
+  - path: /home/loufogle/Desktop/Radarr.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🎬 Radarr (Movies)
+      Comment=Manage movie downloads
+      Exec=firefox http://localhost:8111
+      Icon=applications-multimedia
+      Terminal=false
+      Categories=Network;
+
+  - path: /home/loufogle/Desktop/Lidarr.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🎵 Lidarr (Music)
+      Comment=Manage music downloads
+      Exec=firefox http://localhost:8112
+      Icon=applications-multimedia
+      Terminal=false
+      Categories=AudioVideo;
+
+  - path: /home/loufogle/Desktop/Prowlarr.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🔍 Prowlarr (Indexers)
+      Comment=Manage download indexers
+      Exec=firefox http://localhost:8100
+      Icon=applications-internet
+      Terminal=false
+      Categories=Network;
+
+  - path: /home/loufogle/Desktop/qBittorrent.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=⬇️ qBittorrent
+      Comment=Download client
+      Exec=firefox http://localhost:8003
+      Icon=applications-internet
+      Terminal=false
+      Categories=Network;
+
+  - path: /home/loufogle/Desktop/Overseerr.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=📝 Overseerr (Requests)
+      Comment=Request movies and TV shows
+      Exec=firefox http://localhost:8310
+      Icon=applications-internet
+      Terminal=false
+      Categories=Network;
+
+  - path: /home/loufogle/Desktop/Bazarr.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=💬 Bazarr (Subtitles)
+      Comment=Manage subtitles
+      Exec=firefox http://localhost:8300
+      Icon=applications-multimedia
+      Terminal=false
+      Categories=AudioVideo;
+
+  - path: /home/loufogle/Desktop/Tautulli.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=📊 Tautulli (Analytics)
+      Comment=Plex analytics and monitoring
+      Exec=firefox http://localhost:8320
+      Icon=applications-office
+      Terminal=false
+      Categories=Office;
+
+  - path: /home/loufogle/Desktop/Portainer.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🐳 Portainer (Container Management)
+      Comment=Manage Docker containers
+      Exec=firefox http://localhost:8500
+      Icon=applications-system
+      Terminal=false
+      Categories=System;
+
+  - path: /home/loufogle/Desktop/Traefik-Dashboard.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🌐 Traefik Dashboard
+      Comment=Reverse proxy dashboard
+      Exec=firefox http://localhost:8000
+      Icon=applications-internet
+      Terminal=false
+      Categories=Network;
+
+  - path: /home/loufogle/Desktop/Grafana.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=📈 Grafana (Monitoring)
+      Comment=System monitoring dashboards
+      Exec=firefox http://localhost:8401
+      Icon=applications-office
+      Terminal=false
+      Categories=Office;
+
+  - path: /home/loufogle/Desktop/Prometheus.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=📊 Prometheus (Metrics)
+      Comment=System metrics collection
+      Exec=firefox http://localhost:8400
+      Icon=applications-office
+      Terminal=false
+      Categories=Office;
+
+  - path: /home/loufogle/Desktop/Vaultwarden.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🔐 Vaultwarden (Passwords)
+      Comment=Password manager
+      Exec=firefox http://localhost:8530
+      Icon=applications-accessories
+      Terminal=false
+      Categories=Utility;
+
+  - path: /home/loufogle/Desktop/Homarr.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🏠 Homarr Dashboard
+      Comment=Alternative service dashboard
+      Exec=firefox http://localhost:8541
+      Icon=applications-internet
+      Terminal=false
+      Categories=Network;
+
+  - path: /home/loufogle/Desktop/AudioBookshelf.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=📚 AudioBookshelf
+      Comment=Audiobooks and podcasts
+      Exec=firefox http://localhost:8210
+      Icon=applications-multimedia
+      Terminal=false
+      Categories=AudioVideo;
+
+  - path: /home/loufogle/Desktop/Calibre-Web.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=📖 Calibre Web (Books)
+      Comment=Ebook library
+      Exec=firefox http://localhost:8211
+      Icon=applications-office
+      Terminal=false
+      Categories=Office;
+
+  - path: /home/loufogle/Desktop/Awesome-Stack-Terminal.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=💻 Awesome Stack Terminal
+      Comment=Quick terminal commands for stack management
+      Exec=konsole -e bash -c 'echo "🚀 BlendOS Awesome Stack Commands:"; echo ""; echo "awesome-stack status     - Show all service status"; echo "awesome-stack media start - Start media stack"; echo "awesome-stack all restart - Restart everything"; echo "podman ps               - Show running containers"; echo ""; echo "Press Enter to continue..."; read; bash'
+      Icon=utilities-terminal
+      Terminal=false
+      Categories=System;
+
+  # Service Status Desktop Widget
+  - path: /home/loufogle/Desktop/Stack-Status.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=⚡ Stack Status
+      Comment=Quick status check
+      Exec=konsole -e bash -c 'awesome-stack status; echo ""; echo "Press Enter to close..."; read'
+      Icon=applications-system
+      Terminal=false
+      Categories=System;
+
+  # Desktop folder for organized access
+  - path: /home/loufogle/Desktop/Media-Stack-Services/README.txt
+    content: |
+      🚀 BlendOS Awesome Stack Services
+      ================================
+      
+      Quick Reference:
+      - Main Dashboard: http://localhost:8540
+      - Media Server: http://localhost:8200 (Jellyfin)
+      - TV Management: http://localhost:8110 (Sonarr)  
+      - Movie Management: http://localhost:8111 (Radarr)
+      - Music Management: http://localhost:8112 (Lidarr)
+      - Download Client: http://localhost:8003 (qBittorrent)
+      - Request System: http://localhost:8310 (Overseerr)
+      
+      Terminal Commands:
+      - awesome-stack status
+      - awesome-stack media start
+      - awesome-stack all restart
+      - podman ps
+
+
+  # Fixed VM launch scripts with proper paths
+  - path: /home/loufogle/dev-workspace/vm-scripts/launch-proxmox-dev.sh
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      
+      # Proxmox Development VM Launch Script
+      # Fixed for BlendOS with proper path detection
+      
+      set -e
+      
+      # Colors for output
+      RED='\033[0;31m'
+      GREEN='\033[0;32m'
+      YELLOW='\033[1;33m'
+      BLUE='\033[0;34m'
+      NC='\033[0m'
+      
+      print_status() {
+          echo -e "${BLUE}[INFO]${NC} $1"
+      }
+      
+      print_success() {
+          echo -e "${GREEN}[SUCCESS]${NC} $1"
+      }
+      
+      print_error() {
+          echo -e "${RED}[ERROR]${NC} $1"
+      }
+      
+      print_warning() {
+          echo -e "${YELLOW}[WARNING]${NC} $1"
+      }
+      
+      # Auto-detect VM paths
+      detect_vm_paths() {
+          # Common mount points to check
+          local mount_points=(
+              "/mnt/Data"
+              "/media/Data" 
+              "/run/media/$USER/Data"
+              "$HOME/Data"
+              "/data"
+          )
+          
+          for mount_point in "${mount_points[@]}"; do
+              if [[ -f "$mount_point/vms/production/proxmox-ve.qcow2" ]]; then
+                  VM_DISK="$mount_point/vms/production/proxmox-ve.qcow2"
+                  print_success "Found VM disk at: $VM_DISK"
+                  return 0
+              fi
+          done
+          
+          print_error "Could not find proxmox-ve.qcow2 in any standard location"
+          print_status "Checked locations:"
+          for mount_point in "${mount_points[@]}"; do
+              echo "  - $mount_point/vms/production/proxmox-ve.qcow2"
+          done
+          return 1
+      }
+      
+      # Configuration
+      VM_NAME="proxmox-dev"
+      MEMORY="8G"
+      CPUS="4"
+      VNC_PORT="5900"
+      SSH_PORT="2222"
+      HTTP_PORT="8006"
+      
+      # Detect paths
+      if ! detect_vm_paths; then
+          print_error "Cannot launch VM without disk image"
+          exit 1
+      fi
+      
+      print_status "Starting Proxmox VM..."
+      print_status "VM Disk: $VM_DISK"
+      print_status "Memory: $MEMORY, CPUs: $CPUS"
+      print_status "VNC: localhost:$VNC_PORT"
+      print_status "SSH: localhost:$SSH_PORT"
+      print_status "Proxmox Web: http://localhost:$HTTP_PORT"
+      
+      # Launch VM with QEMU
+      exec qemu-system-x86_64 \
+          -name "$VM_NAME" \
+          -machine type=pc,accel=kvm \
+          -cpu host \
+          -smp "$CPUS" \
+          -m "$MEMORY" \
+          -drive file="$VM_DISK",format=qcow2,if=virtio \
+          -netdev user,id=net0,hostfwd=tcp::${SSH_PORT}-:22,hostfwd=tcp::${HTTP_PORT}-:8006 \
+          -device virtio-net-pci,netdev=net0 \
+          -vnc ":0" \
+          -daemonize \
+          -pidfile "/tmp/proxmox-vm.pid" \
+          "$@"
+
+  # Fixed desktop shortcut for Proxmox VM with better error handling  
+  - path: /home/loufogle/Desktop/Launch-Proxmox-VM-Fixed.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=🖥️ Launch Proxmox VM (Fixed)
+      Comment=Start Proxmox VM with auto-path detection
+      Exec=konsole -e bash -c '/home/loufogle/dev-workspace/vm-scripts/launch-proxmox-dev.sh; echo ""; echo "VM Status:"; echo "- VNC: vncviewer localhost:5900"; echo "- SSH: ssh -p 2222 root@localhost"; echo "- Web: http://localhost:8006"; echo ""; echo "Press Enter to close..."; read'
+      Icon=computer
+      Terminal=false
+      Categories=Development;System;
+      StartupNotify=true
+
+  # VM Status checker script
+  - path: /home/loufogle/dev-workspace/vm-scripts/vm-status.sh
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      
+      # VM Status Checker
+      
+      GREEN='\033[0;32m'
+      RED='\033[0;31m'
+      NC='\033[0m'
+      
+      echo "🖥️ Proxmox VM Status Check"
+      echo "=========================="
+      echo ""
+      
+      # Check if VM process is running
+      if pgrep -f "proxmox-dev" > /dev/null; then
+          echo -e "${GREEN}✅ VM Process: Running${NC}"
+      else
+          echo -e "${RED}❌ VM Process: Not running${NC}"
+      fi
+      
+      # Check VNC port
+      if netstat -ln 2>/dev/null | grep -q ":5900"; then
+          echo -e "${GREEN}✅ VNC Port: Open (localhost:5900)${NC}"
+      else
+          echo -e "${RED}❌ VNC Port: Closed${NC}"
+      fi
+      
+      # Check SSH port
+      if netstat -ln 2>/dev/null | grep -q ":2222"; then
+          echo -e "${GREEN}✅ SSH Port: Open (localhost:2222)${NC}"
+      else
+          echo -e "${RED}❌ SSH Port: Closed${NC}"
+      fi
+      
+      # Check web port
+      if netstat -ln 2>/dev/null | grep -q ":8006"; then
+          echo -e "${GREEN}✅ Web Port: Open (http://localhost:8006)${NC}"
+      else
+          echo -e "${RED}❌ Web Port: Closed${NC}"
+      fi
+      
+      echo ""
+      echo "Connection Methods:"
+      echo "- VNC: vncviewer localhost:5900"
+      echo "- SSH: ssh -p 2222 root@localhost" 
+      echo "- Web: http://localhost:8006"
+
+  # Fixed VM Status desktop shortcut
+  - path: /home/loufogle/Desktop/VM-Status-Fixed.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=📊 VM Status (Fixed)
+      Comment=Check Proxmox VM status
+      Exec=konsole -e bash -c '/home/loufogle/dev-workspace/vm-scripts/vm-status.sh; echo ""; echo "Press Enter to close..."; read'
+      Icon=computer
+      Terminal=false
+      Categories=Development;System;
+
+
+  # SDDM Session Configuration - Fix missing session options
+  - path: /etc/sddm.conf.d/sessions.conf
+    content: |
+      [General]
+      DisplayServer=x11
+      Numlock=on
+      
+      [Theme]
+      Current=breeze
+      CursorTheme=breeze_cursors
+      
+      [X11]
+      SessionDir=/usr/share/xsessions
+      ServerArguments=-nolisten tcp -dpi 96
+      MinimumVT=7
+      
+      [Wayland]
+      SessionDir=/usr/share/wayland-sessions
+
+  # Plasma X11 session (dual GPU optimized)
+  - path: /usr/share/xsessions/plasma.desktop
+    content: |
+      [Desktop Entry]
+      Type=XSession
+      Exec=env QT_QPA_PLATFORM=xcb /usr/bin/startplasma-x11
+      TryExec=/usr/bin/startplasma-x11
+      DesktopNames=KDE
+      Name=Plasma (X11)
+      Comment=Plasma by KDE (X11)
+      X-KDE-PluginInfo-Version=6.4.5
+
+  # Plasma X11 session with NVIDIA Prime
+  - path: /usr/share/xsessions/plasma-nvidia.desktop
+    content: |
+      [Desktop Entry]
+      Type=XSession
+      Exec=env QT_QPA_PLATFORM=xcb prime-run /usr/bin/startplasma-x11
+      TryExec=/usr/bin/startplasma-x11
+      DesktopNames=KDE
+      Name=Plasma (X11 - NVIDIA)
+      Comment=Plasma by KDE (X11 with NVIDIA GPU)
+      X-KDE-PluginInfo-Version=6.4.5
+
+  # Plasma Wayland session
+  - path: /usr/share/wayland-sessions/plasma.desktop
+    content: |
+      [Desktop Entry]
+      Type=Application
+      Exec=/usr/bin/startplasma-wayland
+      TryExec=/usr/bin/startplasma-wayland
+      DesktopNames=KDE
+      Name=Plasma (Wayland)
+      Comment=Plasma by KDE (Wayland)
+      X-KDE-PluginInfo-Version=6.4.5
+
+  # Basic X11 session fallback
+  - path: /usr/share/xsessions/xorg.desktop
+    content: |
+      [Desktop Entry]
+      Type=XSession
+      Exec=/usr/bin/startx
+      TryExec=/usr/bin/startx
+      Name=Xorg
+      Comment=X11 session
+
+  # KDE Console session (minimal)
+  - path: /usr/share/xsessions/kde-console.desktop
+    content: |
+      [Desktop Entry]
+      Type=XSession
+      Exec=/usr/bin/konsole
+      TryExec=/usr/bin/konsole
+      Name=KDE Console
+      Comment=KDE Console session
+
+  # Fix for missing startplasma scripts
+  - path: /usr/local/bin/startplasma-x11
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      # Plasma X11 startup script for BlendOS
+      
+      export QT_QPA_PLATFORM=xcb
+      export QT_QPA_PLATFORMTHEME=kde
+      export XDG_CURRENT_DESKTOP=KDE
+      export XDG_SESSION_TYPE=x11
+      export XDG_SESSION_DESKTOP=KDE
+      
+      # Start Plasma
+      if command -v /usr/bin/startplasma-x11 >/dev/null 2>&1; then
+          exec /usr/bin/startplasma-x11 "$@"
+      elif command -v startkde >/dev/null 2>&1; then
+          exec startkde "$@"  
+      else
+          # Fallback: start basic KDE session
+          exec /usr/bin/plasmashell "$@"
+      fi
+
+  # Fix for missing startplasma-wayland script
+  - path: /usr/local/bin/startplasma-wayland
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      # Plasma Wayland startup script for BlendOS
+      
+      export QT_QPA_PLATFORM=wayland
+      export QT_QPA_PLATFORMTHEME=kde
+      export XDG_CURRENT_DESKTOP=KDE
+      export XDG_SESSION_TYPE=wayland
+      export XDG_SESSION_DESKTOP=KDE
+      export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+      
+      # Start Plasma Wayland
+      if command -v /usr/bin/startplasma-wayland >/dev/null 2>&1; then
+          exec /usr/bin/startplasma-wayland "$@"
+      else
+          # Fallback for Wayland
+          exec /usr/bin/kwin_wayland --xwayland /usr/bin/plasmashell "$@"
+      fi
+
+
+
+  # Dr460nized Plasma Configuration (Top Toolbar Setup)
+  - path: /home/loufogle/.config/plasma-org.kde.plasma.desktop-appletsrc
+    content: |
+      [ActionPlugins][0]
+      RightButton;NoModifier=org.kde.contextmenu
+
+      [ActionPlugins][1]
+      RightButton;NoModifier=org.kde.contextmenu
+
+      [Containments][1]
+      ItemGeometriesHorizontal=
+      activityId=2946a187-7420-486a-b913-28bec430e8bb
+      formfactor=0
+      immutability=1
+      lastScreen=0
+      location=0
+      plugin=org.kde.plasma.folder
+      wallpaperplugin=a2n.blur
+
+      [Containments][1][General]
+      positions={"2560x1440":[]}
+
+      [Containments][12]
+      activityId=
+      formfactor=2
+      immutability=1
+      lastScreen=-1
+      location=3
+      plugin=org.kde.plasma.private.systemtray
+      popupHeight=443
+      popupWidth=443
+      wallpaperplugin=org.kde.image
+
+      [Containments][12][Applets][13]
+      immutability=1
+      plugin=org.kde.kdeconnect
+
+      [Containments][12][Applets][14]
+      immutability=1
+      plugin=org.kde.kscreen
+
+      [Containments][12][Applets][15]
+      immutability=1
+      plugin=org.kde.plasma.cameraindicator
+
+      [Containments][12][Applets][16]
+      immutability=1
+      plugin=org.kde.plasma.clipboard
+
+      [Containments][12][Applets][17]
+      immutability=1
+      plugin=org.kde.plasma.devicenotifier
+
+      [Containments][12][Applets][18]
+      immutability=1
+      plugin=org.kde.plasma.keyboardindicator
+
+      [Containments][12][Applets][19]
+      immutability=1
+      plugin=org.kde.plasma.keyboardlayout
+
+      [Containments][12][Applets][20]
+      immutability=1
+      plugin=org.kde.plasma.manage-inputmethod
+
+      [Containments][12][Applets][21]
+      immutability=1
+      plugin=org.kde.plasma.notifications
+
+      [Containments][12][Applets][22]
+      immutability=1
+      plugin=org.kde.plasma.volume
+
+      [Containments][12][Applets][22][Configuration][General]
+      migrated=true
+
+      [Containments][12][Applets][27]
+      immutability=1
+      plugin=org.kde.plasma.brightness
+
+      [Containments][12][Applets][28]
+      immutability=1
+      plugin=org.kde.plasma.battery
+
+      [Containments][12][Applets][29]
+      immutability=1
+      plugin=org.kde.plasma.bluetooth
+
+      [Containments][12][Applets][29][Configuration]
+      PreloadWeight=55
+
+      [Containments][12][Applets][30]
+      immutability=1
+      plugin=org.kde.plasma.networkmanagement
+
+      [Containments][12][Applets][30][Configuration]
+      PreloadWeight=55
+
+      [Containments][12][General]
+      extraItems=org.kde.kdeconnect,org.kde.kscreen,org.kde.plasma.battery,org.kde.plasma.bluetooth,org.kde.plasma.brightness,org.kde.plasma.cameraindicator,org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.plasma.keyboardindicator,org.kde.plasma.keyboardlayout,org.kde.plasma.manage-inputmethod,org.kde.plasma.mediacontroller,org.kde.plasma.networkmanagement,org.kde.plasma.notifications,org.kde.plasma.volume
+      knownItems=org.kde.kdeconnect,org.kde.kscreen,org.kde.plasma.battery,org.kde.plasma.bluetooth,org.kde.plasma.brightness,org.kde.plasma.cameraindicator,org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.plasma.keyboardindicator,org.kde.plasma.keyboardlayout,org.kde.plasma.manage-inputmethod,org.kde.plasma.mediacontroller,org.kde.plasma.networkmanagement,org.kde.plasma.notifications,org.kde.plasma.volume
+
+      [Containments][2]
+      activityId=
+      formfactor=2
+      immutability=1
+      lastScreen=0
+      location=3
+      plugin=org.kde.panel
+      wallpaperplugin=org.kde.image
+
+      [Containments][2][Applets][10]
+      immutability=1
+      plugin=luisbocanegra.panel.colorizer
+
+      [Containments][2][Applets][10][Configuration]
+      PreloadWeight=100
+      popupHeight=191
+      popupWidth=191
+
+      [Containments][2][Applets][3]
+      immutability=1
+      plugin=org.kde.plasma.kickoff
+
+      [Containments][2][Applets][3][Configuration][General]
+      favoritesPortedToKAstats=true
+      icon=distributor-logo-garuda
+      lengthFirstMargin=7
+
+      [Containments][2][Applets][3][Configuration][Shortcuts]
+      global=Alt+F1
+
+      [Containments][2][Applets][4]
+      immutability=1
+      plugin=org.kde.windowbuttons
+
+      [Containments][2][Applets][4][Configuration][General]
+      buttonSizePercentage=42
+      containmentType=Plasma
+      inactiveStateEnabled=true
+      lengthFirstMargin=6
+      lengthLastMargin=6
+      lengthMarginsLock=false
+      selectedPlugin=org.kde.kwin.aurorae
+      selectedTheme=__aurorae__svg__Sweet-Dark
+      spacing=6
+      useCurrentDecoration=false
+      useDecorationMetrics=false
+      visibility=2
+
+      [Containments][2][Applets][5]
+      immutability=1
+      plugin=org.kde.windowtitle
+
+      [Containments][2][Applets][5][Configuration][Appearance]
+      altTxt=Dr460nized KDE 🔥
+      isBold=true
+      visible=false
+
+      [Containments][2][Applets][5][Configuration][Behavior]
+      filterByScreen=true
+
+      [Containments][2][Applets][5][Configuration][General]
+      filterActivityInfo=false
+      filterByScreen=true
+      lengthFirstMargin=7
+      lengthMarginsLock=false
+
+      [Containments][2][Applets][6]
+      immutability=1
+      plugin=org.kde.plasma.appmenu
+
+      [Containments][2][Applets][7]
+      immutability=1
+      plugin=org.kde.plasma.panelspacer
+
+      [Containments][2][Applets][8]
+      immutability=1
+      plugin=org.kde.plasma.digitalclock
+
+      [Containments][2][Applets][8][Configuration][Appearance]
+      autoFontAndSize=false
+      customDateFormat=dddd, MMM d
+      dateDisplayFormat=BesideTime
+      dateFormat=custom
+      enabledCalendarPlugins=alternatecalendar,astronomicalevents,holidaysevents
+      fontFamily=Fira Sans ExtraBold
+      fontStyleName=Regular
+      fontWeight=400
+      showWeekNumbers=true
+
+      [Containments][2][Applets][9]
+      immutability=1
+      plugin=org.kde.plasma.panelspacer
+
+      [Containments][2][Applets][11]
+      immutability=1
+      plugin=org.kde.plasma.systemtray
+
+      [Containments][2][Applets][11][Configuration]
+      PreloadWeight=55
+      SystrayContainmentId=12
+
+      [Containments][2][Applets][23]
+      immutability=1
+      plugin=org.kde.plasma.userswitcher
+
+      [Containments][2][Applets][23][Configuration][General]
+      showFace=true
+      showName=false
+      showTechnicalInfo=true
+
+      [Containments][2][General]
+      AppletOrder=3;4;5;6;7;8;9;10;11;23
+
+      [ScreenMapping]
+      itemsOnDisabledScreens=
+      screenMapping=
+
+  # Dr460nized Plasma Shell Configuration
+  - path: /home/loufogle/.config/plasmashellrc
+    content: |
+      [PlasmaViews][Panel 2]
+      alignment=1
+      floating=0
+
+      [PlasmaViews][Panel 2][Defaults]
+      thickness=32
+
+      [Updates]
+      performed=/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/containmentactions_middlebutton.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/digitalclock_migrate_font_settings.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/digitalclock_migrate_showseconds_setting.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/digitalclock_rename_timezonedisplay_key.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/folderview_fix_recursive_screenmapping.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/keyboardlayout_migrateiconsetting.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/keyboardlayout_remove_shortcut.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/klipper_clear_config.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/maintain_existing_desktop_icon_sizes.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/mediaframe_migrate_useBackground_setting.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/migrate_font_weights.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/move_desktop_layout_config.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/no_middle_click_paste_on_panels.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/systemloadviewer_systemmonitor.js,/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/unlock_widgets.js
+
+  # Dr460nized KDE Global Configuration  
+  - path: /home/loufogle/.config/kdeglobals
+    content: |
+      [ColorEffects:Disabled]
+      ChangeSelectionColor=
+      Color=56,56,56
+      ColorAmount=0
+      ColorEffect=0
+      ContrastAmount=0.65
+      ContrastEffect=1
+      Enable=
+      IntensityAmount=0.1
+      IntensityEffect=2
+
+      [ColorEffects:Inactive]
+      ChangeSelectionColor=true
+      Color=112,111,110
+      ColorAmount=0.025000000000000001
+      ColorEffect=2
+      ContrastAmount=0.10000000000000001
+      ContrastEffect=2
+      Enable=false
+      IntensityAmount=0
+      IntensityEffect=0
+
+      [Colors:Button]
+      BackgroundAlternate=64,69,82
+      BackgroundNormal=30,34,51
+      DecorationFocus=197,14,210
+      DecorationHover=197,14,210
+      ForegroundActive=61,174,233
+      ForegroundInactive=102,106,115
+      ForegroundLink=41,128,185
+      ForegroundNegative=237,37,78
+      ForegroundNeutral=255,106,0
+      ForegroundNormal=195,199,209
+      ForegroundPositive=113,247,159
+      ForegroundVisited=82,148,226
+
+      [Colors:Selection]
+      BackgroundAlternate=29,153,243
+      BackgroundNormal=197,14,210
+      DecorationFocus=197,14,210
+      DecorationHover=197,14,210
+      ForegroundActive=252,252,252
+      ForegroundInactive=211,218,227
+      ForegroundLink=253,188,75
+      ForegroundNegative=237,37,78
+      ForegroundNeutral=255,106,0
+      ForegroundNormal=254,254,254
+      ForegroundPositive=113,247,159
+      ForegroundVisited=189,195,199
+
+      [Colors:Tooltip]
+      BackgroundAlternate=47,52,63
+      BackgroundNormal=53,57,69
+      DecorationFocus=197,14,210
+      DecorationHover=197,14,210
+      ForegroundActive=61,174,233
+      ForegroundInactive=102,106,115
+      ForegroundLink=41,128,185
+      ForegroundNegative=237,37,78
+      ForegroundNeutral=255,106,0
+      ForegroundNormal=211,218,227
+      ForegroundPositive=113,247,159
+      ForegroundVisited=82,148,226
+
+      [Colors:View]
+      BackgroundAlternate=31,35,51
+      BackgroundNormal=22,25,37
+      DecorationFocus=197,14,210
+      DecorationHover=197,14,210
+      ForegroundActive=0,193,228
+      ForegroundInactive=102,106,115
+      ForegroundLink=82,148,226
+      ForegroundNegative=237,37,78
+      ForegroundNeutral=255,106,0
+      ForegroundNormal=211,218,227
+      ForegroundPositive=113,247,159
+      ForegroundVisited=124,183,255
+
+      [Colors:Window]
+      BackgroundAlternate=47,52,63
+      BackgroundNormal=24,27,40
+      DecorationFocus=197,14,210
+      DecorationHover=197,14,210
+      ForegroundActive=61,174,233
+      ForegroundInactive=102,106,115
+      ForegroundLink=41,128,185
+      ForegroundNegative=237,37,78
+      ForegroundNeutral=255,106,0
+      ForegroundNormal=211,218,227
+      ForegroundPositive=113,247,159
+      ForegroundVisited=179,13,191
+
+      [General]
+      ColorSchemeHash=a054744e5da530142f039caa182148b170643d2e
+      fixed=FiraCode Nerd Font Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+      font=Fira Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+      menuFont=Fira Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,1
+      smallestReadableFont=Fira Sans,8,-1,5,400,0,0,0,0,0,0,0,0,0,1
+      toolBarFont=Fira Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,1
+
+      [KDE]
+      LookAndFeelPackage=Dr460nized
+      SingleClick=true
+
+      [WM]
+      activeBackground=47,52,63
+      activeBlend=47,52,63
+      activeFont=Fira Sans,10,-1,5,75,0,0,0,0,0,Bold
+      activeForeground=211,218,227
+      inactiveBackground=47,52,63
+      inactiveBlend=47,52,63
+      inactiveForeground=102,106,115
+
+
+  # Set proper ownership for Dr460nized Plasma configuration
+  - chown -R loufogle:loufogle /home/loufogle/.config/plasma* /home/loufogle/.config/kde*
+  # Create fontconfig directory
+  - mkdir -p /home/loufogle/.config/fontconfig && chown -R loufogle:loufogle /home/loufogle/.config/fontconfig
+  # Apply Dr460nized Look and Feel package
+  - lookandfeeltool -a Dr460nized || true
+  # Restart plasmashell to apply changes
+  - systemctl --user restart plasmashell || true
+
+  # Panel Colorizer Configuration for Dr460nized Style
+  - path: /home/loufogle/.config/plasma-org.kde.plasma.desktop-appletsrc.panelcolorizer
+    content: |
+      # This file contains the detailed Panel Colorizer settings from your Garuda system
+      # The configuration creates the stunning transparent/colored top bar effect
+      # Settings include blur effects, gradient colors, rounded corners, and shadows
+      globalSettings={"panel":{"enabled":true,"blurBehind":true,"backgroundColor":{"enabled":true,"lightnessValue":0.5,"saturationValue":0.5,"alpha":0.75,"systemColor":"backgroundColor","systemColorSet":"Window","custom":"#222222","list":["#ed8796","#A6DA95","#EED49F","#8AADF4","#F5BDE6","#8BD5CA","#f5a97f"],"followColor":0,"saturationEnabled":false,"lightnessEnabled":false,"animation":{"enabled":false,"interval":3000,"smoothing":800},"sourceType":1},"foregroundColor":{"enabled":false},"radius":{"enabled":true,"corner":{"topLeft":12,"topRight":12,"bottomRight":12,"bottomLeft":12}},"shadow":{"background":{"enabled":true,"color":{"alpha":0.55,"custom":"#282828"},"size":5}}}}
+      hideWidget=true
+      lastPreset=/usr/share/plasma/plasmoids/luisbocanegra.panel.colorizer/contents/ui/presets/Dr460nized Top Panel Interaction
+      presetAutoloading={"enabled":true,"touchingWindow":"/usr/share/plasma/plasmoids/luisbocanegra.panel.colorizer/contents/ui/presets/Dr460nized Top Panel Interaction","maximized":"/usr/share/plasma/plasmoids/luisbocanegra.panel.colorizer/contents/ui/presets/Dr460nized Top Panel Interaction","normal":"/usr/share/plasma/plasmoids/luisbocanegra.panel.colorizer/contents/ui/presets/Dr460nized Top Panel"}
+
+  # Font configuration for Dr460nized
+  - path: /home/loufogle/.config/fontconfig/fonts.conf
+    content: |
+      <?xml version="1.0"?>
+      <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+      <fontconfig>
+        <alias>
+          <family>monospace</family>
+          <prefer>
+            <family>FiraCode Nerd Font Mono</family>
+            <family>Fira Code</family>
+            <family>Source Code Pro</family>
+          </prefer>
+        </alias>
+        <alias>
+          <family>sans-serif</family>
+          <prefer>
+            <family>Fira Sans</family>
+            <family>Noto Sans</family>
+          </prefer>
+        </alias>
+      </fontconfig>

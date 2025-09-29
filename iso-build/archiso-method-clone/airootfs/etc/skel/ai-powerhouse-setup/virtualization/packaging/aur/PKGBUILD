@@ -1,0 +1,120 @@
+# Maintainer: Enhanced by AI <ai@mobatech.org>
+# Contributor: Original MobaLiveCD Team
+
+pkgname=mobalivecd-ai
+pkgver=2.0.0
+pkgrel=1
+pkgdesc="AI-Enhanced QEMU-based LiveCD/ISO testing tool with intelligent optimization"
+arch=('any')
+url="https://github.com/wlfogle/mobalivecd-linux"
+license=('GPL-2.0-or-later')
+depends=(
+    'python>=3.8'
+    'python-gobject'
+    'gtk4'
+    'libadwaita'
+    'qemu-system-x86'
+    'python-psutil'
+)
+optdepends=(
+    'qemu-system-arm: ARM virtualization support'
+    'qemu-system-ppc: PowerPC virtualization support'
+    'libvirt: Advanced VM management'
+    'virt-manager: GUI VM management'
+)
+makedepends=(
+    'git'
+    'python-setuptools'
+)
+conflicts=('mobalivecd')
+provides=('mobalivecd')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')  # Will be updated with actual release
+
+prepare() {
+    cd "${srcdir}/mobalivecd-linux-${pkgver}"
+    
+    # Ensure executable permissions
+    chmod +x enhanced_mobalivecd.py
+    chmod +x install.sh uninstall.sh
+}
+
+build() {
+    cd "${srcdir}/mobalivecd-linux-${pkgver}"
+    
+    # Compile Python files for optimization
+    python -m compileall .
+    
+    # Build resources if present
+    if [ -f "Makefile.enhanced" ]; then
+        make -f Makefile.enhanced build-resources || true
+    fi
+}
+
+check() {
+    cd "${srcdir}/mobalivecd-linux-${pkgver}"
+    
+    # Run basic tests
+    python -m py_compile enhanced_mobalivecd.py
+    python -m py_compile core/enhanced_qemu_runner.py
+    python -m py_compile ui/enhanced_main_window.py
+    
+    # Test imports
+    python -c "from core.enhanced_qemu_runner import AIEnhancedQEMURunner"
+}
+
+package() {
+    cd "${srcdir}/mobalivecd-linux-${pkgver}"
+    
+    # Create directories
+    install -dm755 "${pkgdir}/usr/share/${pkgname}"
+    install -dm755 "${pkgdir}/usr/bin"
+    install -dm755 "${pkgdir}/usr/share/applications"
+    install -dm755 "${pkgdir}/usr/share/doc/${pkgname}"
+    install -dm755 "${pkgdir}/usr/share/licenses/${pkgname}"
+    
+    # Install application files
+    cp -r core/ ui/ "${pkgdir}/usr/share/${pkgname}/"
+    install -Dm755 enhanced_mobalivecd.py "${pkgdir}/usr/share/${pkgname}/"
+    
+    # Install resources if built
+    if [ -d "build/" ]; then
+        cp -r build/* "${pkgdir}/usr/share/${pkgname}/" 2>/dev/null || true
+    fi
+    
+    # Create launcher script
+    cat > "${pkgdir}/usr/bin/${pkgname}" << 'EOF'
+#!/bin/bash
+cd /usr/share/mobalivecd-ai
+PYTHONPATH=. python enhanced_mobalivecd.py "$@"
+EOF
+    chmod +x "${pkgdir}/usr/bin/${pkgname}"
+    
+    # Install desktop entry
+    cat > "${pkgdir}/usr/share/applications/${pkgname}.desktop" << 'EOF'
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MobaLiveCD AI
+GenericName=ISO Virtualization Tool
+Comment=AI-Enhanced QEMU-based LiveCD/ISO testing tool
+Icon=computer
+Exec=mobalivecd-ai %f
+Terminal=false
+StartupNotify=true
+Categories=System;Utility;Emulator;
+MimeType=application/x-iso9660-image;application/x-cd-image;
+Keywords=qemu;kvm;virtualization;iso;livecd;ai;
+EOF
+    
+    # Install documentation
+    install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/"
+    install -Dm644 PROJECT_SUMMARY.md "${pkgdir}/usr/share/doc/${pkgname}/"
+    
+    # Install license
+    if [ -f "LICENSE" ]; then
+        install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/"
+    fi
+}
+
+# vim:set ts=4 sw=4 et:

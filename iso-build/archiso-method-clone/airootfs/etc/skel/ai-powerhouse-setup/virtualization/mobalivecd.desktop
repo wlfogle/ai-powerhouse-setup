@@ -1,0 +1,16 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MobaLiveCD
+Comment=Test LiveCD ISO files with QEMU
+Comment[fr]=Tester les fichiers ISO LiveCD avec QEMU
+GenericName=LiveCD Tester
+GenericName[fr]=Testeur de LiveCD
+Exec=mobalivecd %f
+Icon=application-x-cd-image
+Terminal=false
+StartupNotify=true
+MimeType=application/x-cd-image;application/x-iso9660-image;application/x-raw-disk-image;
+Categories=System;Emulator;
+Keywords=ISO;LiveCD;QEMU;Virtualization;CD;DVD;
+Keywords[fr]=ISO;LiveCD;QEMU;Virtualisation;CD;DVD;

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garuda Media Stack - Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .service-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #ffd700;
+            border-bottom: 2px solid #ffd700;
+            padding-bottom: 5px;
+        }
+        
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .service-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateX(5px);
+        }
+        
+        .service-name {
+            font-weight: bold;
+        }
+        
+        .service-port {
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .service-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+        }
+        
+        .service-status.offline {
+            background: #f44336;
+        }
+        
+        .service-status.warning {
+            background: #ff9800;
+        }
+        
+        .service-link {
+            color: #64b5f6;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .service-link:hover {
+            color: #90caf9;
+            text-decoration: underline;
+        }
+        
+        .control-panel {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        
+        .control-btn.ghost {
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+        }
+        
+        .control-btn.vpn {
+            background: linear-gradient(45deg, #00b894, #00a085);
+        }
+        
+        .control-btn.media {
+            background: linear-gradient(45deg, #0984e3, #74b9ff);
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .log-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .ghost-mode-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ghost-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #f44336;
+        }
+        
+        .ghost-dot.active {
+            background: #4CAF50;
+        }
+        
+        .quick-links {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .quick-link {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .quick-link:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Garuda Media Stack - Admin Dashboard</h1>
+            <div class="subtitle">Complete technical control panel with Ghost Mode integration</div>
+        </div>
+        
+        <!-- Ghost Mode Indicator -->
+        <div class="ghost-mode-indicator">
+            <div class="ghost-dot" id="ghost-status"></div>
+            <span id="ghost-text">Ghost Mode: Checking...</span>
+        </div>
+        
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <h2>🎛️ System Controls</h2>
+            <div class="control-buttons">
+                <button class="control-btn ghost" onclick="toggleGhostMode()">🥷 Toggle Ghost Mode</button>
+                <button class="control-btn vpn" onclick="manageVPN()">🛡️ VPN Management</button>
+                <button class="control-btn media" onclick="restartServices()">🔄 Restart All Services</button>
+                <button class="control-btn" onclick="openGrandmaView()">🏠 Grandma Interface</button>
+            </div>
+        </div>
+        
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <h3>🔗 Quick Access</h3>
+            <div class="link-grid">
+                <a href="http://localhost:8603" class="quick-link" target="_blank">🏠 Grandma View</a>
+                <a href="http://localhost:8096" class="quick-link" target="_blank">🎬 Jellyfin</a>
+                <a href="http://localhost:32400/web" class="quick-link" target="_blank">📺 Plex</a>
+                <a href="http://localhost:7878" class="quick-link" target="_blank">🎬 Radarr</a>
+                <a href="http://localhost:8989" class="quick-link" target="_blank">📺 Sonarr</a>
+                <a href="http://localhost:8686" class="quick-link" target="_blank">🎵 Lidarr</a>
+                <a href="http://localhost:8787" class="quick-link" target="_blank">📚 Readarr</a>
+                <a href="http://localhost:5080" class="quick-link" target="_blank">⬇️ qBittorrent</a>
+                <a href="http://localhost:9117" class="quick-link" target="_blank">🔍 Jackett</a>
+                <a href="http://localhost:8083" class="quick-link" target="_blank">📖 Calibre-web</a>
+                <a href="http://localhost:13378" class="quick-link" target="_blank">🎧 Audiobooks</a>
+                <a href="http://localhost:3030" class="quick-link" target="_blank">⚡ Pulsarr</a>
+                <a href="http://localhost:5055" class="quick-link" target="_blank">🔍 Jellyseerr</a>
+            </div>
+        </div>
+        
+        <!-- System Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="active-services">-</div>
+                <div class="stat-label">Active Services</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="uptime">-</div>
+                <div class="stat-label">System Uptime</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="vpn-clients">-</div>
+                <div class="stat-label">VPN Clients</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="disk-usage">-</div>
+                <div class="stat-label">Disk Usage</div>
+            </div>
+        </div>
+        
+        <!-- Service Status Grid -->
+        <div class="dashboard-grid">
+            <!-- Media Servers -->
+            <div class="service-section">
+                <div class="section-title">🎥 Media Servers</div>
+                <div class="service-item">
+                    <span class="service-name">Jellyfin</span>
+                    <span class="service-port">:8096</span>
+                    <div class="service-status" id="jellyfin-status"></div>
+                    <a href="http://localhost:8096" class="service-link" target="_blank">Open</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Plex</span>
+                    <span class="service-port">:32400</span>
+                    <div class="service-status" id="plex-status"></div>
+                    <a href="http://localhost:32400/web" class="service-link" target="_blank">Open</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Jellyseerr</span>
+                    <span class="service-port">:5055</span>
+                    <div class="service-status" id="jellyseerr-status"></div>
+                    <a href="http://localhost:5055" class="service-link" target="_blank">Open</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Pulsarr</span>
+                    <span class="service-port">:3030</span>
+                    <div class="service-status" id="pulsarr-status"></div>
+                    <a href="http://localhost:3030" class="service-link" target="_blank">Open</a>
+                </div>
+            </div>
+            
+            <!-- Content Management -->
+            <div class="service-section">
+                <div class="section-title">📋 Content Management</div>
+                <div class="service-item">
+                    <span class="service-name">Radarr</span>
+                    <span class="service-port">:7878</span>
+                    <div class="service-status" id="radarr-status"></div>
+                    <a href="http://localhost:7878" class="service-link" target="_blank">Open</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Sonarr</span>
+                    <span class="service-port">:8989</span>
+                    <div class="service-status" id="sonarr-status"></div>
+                    <a href="http://localhost:8989" class="service-link" target="_blank">Open</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Lidarr</span>
+                    <span class="service-port">:8686</span>
+                    <div class="service-status" id="lidarr-status"></div>
+                    <a href="http://localhost:8686" class="service-link" target="_blank">Open</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Readarr</span>
+                    <span class="service-port">:8787</span>
+                    <div class="service-status" id="readarr-status"></div>
+                    <a href="http://localhost:8787" class="service-link" target="_blank">Open</a>
+                </div>
+            </div>
+            
+            <!-- Download & Library -->
+            <div class="service-section">
+                <div class="section-title">⬇️ Download & Library</div>
+                <div class="service-item">
+                    <span class="service-name">qBittorrent</span>
+                    <span class="service-port">:5080</span>
+                    <div class="service-status" id="qbittorrent-status"></div>
+                    <a href="http://localhost:5080" class="service-link" target="_blank">Open</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Jackett</span>
+                    <span class="service-port">:9117</span>
+                    <div class="service-status" id="jackett-status"></div>
+                    <a href="http://localhost:9117" class="service-link" target="_blank">Open</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Calibre-Web</span>
+                    <span class="service-port">:8083</span>
+                    <div class="service-status" id="calibre-web-status"></div>
+                    <a href="http://localhost:8083" class="service-link" target="_blank">Open</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Audiobookshelf</span>
+                    <span class="service-port">:13378</span>
+                    <div class="service-status" id="audiobookshelf-status"></div>
+                    <a href="http://localhost:13378" class="service-link" target="_blank">Open</a>
+                </div>
+            </div>
+            
+            <!-- Security & VPN -->
+            <div class="service-section">
+                <div class="section-title">🛡️ Security & VPN</div>
+                <div class="service-item">
+                    <span class="service-name">WireGuard VPN</span>
+                    <span class="service-port">:51820</span>
+                    <div class="service-status" id="wireguard-status"></div>
+                    <a href="#" class="service-link" onclick="showWGStatus()">Manage</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Ghost Mode</span>
+                    <span class="service-port">CLI</span>
+                    <div class="service-status" id="ghost-mode-status"></div>
+                    <a href="#" class="service-link" onclick="toggleGhostMode()">Toggle</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">API Masking Proxy</span>
+                    <span class="service-port">:8080</span>
+                    <div class="service-status" id="api-proxy-status"></div>
+                    <a href="#" class="service-link" onclick="checkProxy()">Check</a>
+                </div>
+                <div class="service-item">
+                    <span class="service-name">Firewall (UFW)</span>
+                    <span class="service-port">System</span>
+                    <div class="service-status" id="firewall-status"></div>
+                    <a href="#" class="service-link" onclick="showFirewall()">Status</a>
+                </div>
+            </div>
+            
+            <!-- System Monitoring -->
+            <div class="service-section">
+                <div class="section-title">📊 System Monitoring</div>
+                <div id="system-info">
+                    <div>CPU Usage: <span id="cpu-usage">-</span></div>
+                    <div>Memory Usage: <span id="memory-usage">-</span></div>
+                    <div>Disk Usage: <span id="disk-usage-detail">-</span></div>
+                    <div>Network: <span id="network-status">-</span></div>
+                    <div>VPN Clients: <span id="vpn-client-count">-</span></div>
+                </div>
+            </div>
+            
+            <!-- Recent Logs -->
+            <div class="service-section">
+                <div class="section-title">📝 Recent Activity</div>
+                <div class="log-panel" id="recent-logs">
+                    Loading logs...
+                </div>
+                <div style="margin-top: 10px; text-align: center;">
+                    <button class="control-btn" onclick="refreshLogs()">🔄 Refresh Logs</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 40px; opacity: 0.7;">
+            <p>🔧 Full technical control • 🏠 <a href="http://localhost:8603" style="color: #ffd700;">Switch to Grandma View</a> • 🥷 Powered by awesome-stack</p>
+        </div>
+    </div>
+    
+    <script>
+        // Service management functions
+        async function toggleGhostMode() {
+            try {
+                const response = await fetch('http://localhost:8081/api/ghost-mode/toggle', {method: 'POST'});
+                const result = await response.json();
+                alert(`Ghost Mode: ${result.message}`);
+                checkGhostMode();
+            } catch (error) {
+                alert('Ghost Mode toggle failed - check system manually');
+            }
+        }
+        
+        async function manageVPN() {
+            const action = prompt('VPN Action: start, stop, status, or rotate-keys?', 'status');
+            if (action) {
+                try {
+                    const response = await fetch(`http://localhost:8081/api/vpn/${action}`, {method: 'POST'});
+                    const result = await response.json();
+                    alert(`VPN ${action}: ${result.message}`);
+                } catch (error) {
+                    alert(`VPN ${action} failed - check manually`);
+                }
+            }
+        }
+        
+        async function restartServices() {
+            if (confirm('Restart all media stack services? This will briefly interrupt service.')) {
+                try {
+                    const response = await fetch('http://localhost:8081/api/services/restart-all', {method: 'POST'});
+                    const result = await response.json();
+                    alert('Services restarted successfully!');
+                    setTimeout(checkAllServices, 5000);
+                } catch (error) {
+                    alert('Service restart failed - check manually');
+                }
+            }
+        }
+        
+        function openGrandmaView() {
+            window.open('http://localhost:8603', '_blank');
+        }
+        
+        function showWGStatus() {
+            fetch('http://localhost:8081/api/wireguard/status')
+                .then(r => r.json())
+                .then(data => {
+                    alert(`WireGuard Status:\\n\\nServer: ${data.server_status}\\nClients Connected: ${data.client_count}\\nLast Key Rotation: ${data.last_rotation}`);
+                })
+                .catch(() => alert('Check WireGuard status manually with: sudo wg show'));
+        }
+        
+        function showFirewall() {
+            fetch('http://localhost:8081/api/firewall/status')
+                .then(r => r.json())
+                .then(data => {
+                    alert(`Firewall Status:\\n\\nUFW: ${data.ufw_status}\\nActive Rules: ${data.rule_count}\\nBlocked Attempts: ${data.blocked_count}`);
+                })
+                .catch(() => alert('Check firewall manually with: sudo ufw status'));
+        }
+        
+        function checkProxy() {
+            fetch('http://localhost:8081/api/proxy/status')
+                .then(r => r.json())
+                .then(data => {
+                    alert(`API Masking Proxy:\\n\\nStatus: ${data.status}\\nRequests Masked: ${data.requests_masked}\\nUptime: ${data.uptime}`);
+                })
+                .catch(() => alert('API Proxy check failed'));
+        }
+        
+        // Status checking functions
+        async function checkAllServices() {
+            const services = [
+                'jellyfin', 'plex', 'radarr', 'sonarr', 'lidarr', 
+                'readarr', 'qbittorrent', 'jackett', 'calibre-web', 
+                'audiobookshelf', 'jellyseerr', 'pulsarr'
+            ];
+            
+            let activeCount = 0;
+            
+            for (const service of services) {
+                try {
+                    const response = await fetch(`http://localhost:8081/api/status/${service}`);
+                    const status = await response.json();
+                    const statusElement = document.getElementById(`${service}-status`);
+                    
+                    if (statusElement) {
+                        if (status.status === 'online') {
+                            statusElement.classList.remove('offline', 'warning');
+                            activeCount++;
+                        } else {
+                            statusElement.classList.add('offline');
+                        }
+                    }
+                } catch (error) {
+                    const statusElement = document.getElementById(`${service}-status`);
+                    if (statusElement) {
+                        statusElement.classList.add('warning');
+                    }
+                }
+            }
+            
+            document.getElementById('active-services').textContent = `${activeCount}/${services.length}`;
+        }
+        
+        async function checkGhostMode() {
+            try {
+                const response = await fetch('http://localhost:8081/api/ghost-mode/status');
+                const status = await response.json();
+                
+                const ghostDot = document.getElementById('ghost-status');
+                const ghostText = document.getElementById('ghost-text');
+                
+                if (status.active) {
+                    ghostDot.classList.add('active');
+                    ghostText.textContent = 'Ghost Mode: 🥷 INVISIBLE';
+                } else {
+                    ghostDot.classList.remove('active');
+                    ghostText.textContent = 'Ghost Mode: 👁️ VISIBLE';
+                }
+            } catch (error) {
+                document.getElementById('ghost-text').textContent = 'Ghost Mode: Unknown';
+            }
+        }
+        
+        async function loadSystemStats() {
+            try {
+                const response = await fetch('http://localhost:8081/api/system/stats');
+                const stats = await response.json();
+                
+                document.getElementById('uptime').textContent = stats.uptime;
+                document.getElementById('vpn-clients').textContent = stats.vpn_clients;
+                document.getElementById('disk-usage').textContent = stats.disk_usage;
+            } catch (error) {
+                console.error('Failed to load system stats:', error);
+            }
+        }
+        
+        async function refreshLogs() {
+            try {
+                const response = await fetch('http://localhost:8081/api/logs/recent');
+                const logs = await response.json();
+                
+                const logPanel = document.getElementById('recent-logs');
+                logPanel.innerHTML = logs.entries.map(entry => 
+                    `<div>${entry.timestamp} [${entry.service}] ${entry.message}</div>`
+                ).join('');
+                
+                logPanel.scrollTop = logPanel.scrollHeight;
+            } catch (error) {
+                document.getElementById('recent-logs').innerHTML = 'Failed to load logs - check manually';
+            }
+        }
+        
+        // Initialize dashboard
+        checkAllServices();
+        checkGhostMode();
+        loadSystemStats();
+        refreshLogs();
+        
+        // Update every 30 seconds
+        setInterval(() => {
+            checkAllServices();
+            checkGhostMode();
+            loadSystemStats();
+        }, 30000);
+        
+        // Update logs every 2 minutes
+        setInterval(refreshLogs, 120000);
+    </script>
+</body>
+</html>

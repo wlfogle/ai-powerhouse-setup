@@ -1,0 +1,44 @@
+# Garuda Media Stack - Automated Recording Schedule
+# Install with: crontab -u lou cron-schedule.txt
+
+# WWE Monday Night Raw (Mondays 8:00 PM ET)
+0 20 * * 1 /home/lou/garuda-media-stack/stream-manager.sh start-wrestling raw 1080p
+
+# WWE Friday Night SmackDown (Fridays 8:00 PM ET)  
+0 20 * * 5 /home/lou/garuda-media-stack/stream-manager.sh start-wrestling smackdown 1080p
+
+# WWE NXT (Tuesdays 8:00 PM ET)
+0 20 * * 2 /home/lou/garuda-media-stack/stream-manager.sh start-wrestling nxt 1080p
+
+# AEW Wednesday Night Dynamite (Wednesdays 8:00 PM ET)
+0 20 * * 3 /home/lou/garuda-media-stack/stream-manager.sh start-wrestling dynamite 1080p
+
+# AEW Friday Night Rampage (Fridays 10:00 PM ET)
+0 22 * * 5 /home/lou/garuda-media-stack/stream-manager.sh start-wrestling rampage 1080p
+
+# AEW Saturday Night Collision (Saturdays 8:00 PM ET)
+0 20 * * 6 /home/lou/garuda-media-stack/stream-manager.sh start-wrestling collision 1080p
+
+# New Orleans Saints Games - Sunday 1:00 PM ET (most games)
+# Uses HDHomeRun as primary source, falls back to streaming
+0 13 * * 0 /home/lou/garuda-media-stack/stream-manager.sh start-saints regular 1080p
+
+# Saints Monday Night Football (when scheduled)
+# 0 20 * * 1 /home/lou/garuda-media-stack/stream-manager.sh start-saints regular 1080p
+
+# Saints Thursday Night Football (Prime Video)
+# 0 20 * * 4 /home/lou/garuda-media-stack/stream-manager.sh start-saints regular 1080p
+
+# Clean up old recordings (runs daily at 3 AM)
+0 3 * * * find /home/lou/garuda-media-stack/recordings -name "*.mkv" -mtime +30 -delete
+0 3 * * * find /home/lou/garuda-media-stack/recordings -name "*.mp4" -mtime +30 -delete  
+0 3 * * * find /home/lou/garuda-media-stack/recordings -name "*.ts" -mtime +7 -delete
+
+# HDHomeRun channel scan (weekly on Sunday 2 AM)
+0 2 * * 0 /home/lou/garuda-media-stack/hdhomerun-manager.sh scan-channels
+
+# Stream manager status check (every 15 minutes)
+*/15 * * * * /home/lou/garuda-media-stack/stream-manager.sh status-json > /home/lou/garuda-media-stack/stream-status.json
+
+# Stop all streams at 2 AM (safety cleanup)
+0 2 * * * /home/lou/garuda-media-stack/stream-manager.sh stop

@@ -63,6 +63,7 @@ core_services=(
     "Jackett:9117"
     "qBittorrent:5080"
     "Jellyseerr:5055"
+    "Vaultwarden:8000"
 )
 
 core_online=0
@@ -118,9 +119,9 @@ echo ""
 # Summary
 total_online=$((core_online + additional_online))
 echo -e "${PURPLE}📊 SYSTEM SUMMARY:${NC}"
-echo -e "Core Services:       ${GREEN}${core_online}/7${NC} online"
+echo -e "Core Services:       ${GREEN}${core_online}/8${NC} online"
 echo -e "Additional Services: ${GREEN}${additional_online}/3${NC} online"
-echo -e "Total Media Stack:   ${GREEN}${total_online}/10${NC} services online"
+echo -e "Total Media Stack:   ${GREEN}${total_online}/11${NC} services online"
 
 # VPN Summary
 vpn_features=0
@@ -164,7 +165,7 @@ echo -e "Memory usage: ${GREEN}${memory}${NC}"
 # Network Ports Summary  
 echo ""
 echo -e "${PURPLE}🌐 LISTENING PORTS:${NC}"
-important_ports=(5055 5080 7878 8083 8096 8686 8787 8888 8989 9001 9117 51820)
+important_ports=(5055 5080 7878 8000 8083 8096 8686 8787 8888 8989 9001 9117 51820)
 for port in "${important_ports[@]}"; do
     if ss -tuln | grep -q ":${port} "; then
         case $port in
@@ -175,6 +176,7 @@ for port in "${important_ports[@]}"; do
             9117) service="Jackett" ;;
             5080) service="qBittorrent" ;;
             5055) service="Jellyseerr" ;;
+            8000) service="Vaultwarden" ;;
             8787) service="Readarr" ;;
             8083) service="Calibre-Web" ;;
             9001) service="Pulsarr" ;;
@@ -186,4 +188,4 @@ for port in "${important_ports[@]}"; do
 done
 
 echo ""
-echo -e "${PURPLE}🎉 STACK STATUS: $(( (total_online + vpn_features) * 100 / 13 ))% OPERATIONAL${NC}"
+echo -e "${PURPLE}🎉 STACK STATUS: $(( (total_online + vpn_features) * 100 / 14 ))% OPERATIONAL${NC}"

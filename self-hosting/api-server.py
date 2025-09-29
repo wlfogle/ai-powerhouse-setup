@@ -173,7 +173,7 @@ class MediaStackAPIHandler(http.server.BaseHTTPRequestHandler):
             self.send_json_response({'success': False, 'message': 'Stop failed'})
 
 if __name__ == "__main__":
-    PORT = 8787
+    PORT = 8601
     with socketserver.TCPServer(("", PORT), MediaStackAPIHandler) as httpd:
         print(f"🚀 Media Stack API Server running on port {PORT}")
         httpd.serve_forever()

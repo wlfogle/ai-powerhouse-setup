@@ -1,0 +1,30 @@
+# CALIBRE LIBRARY CONFIGURATION
+# Access multiple specialized libraries
+
+Main Library: http://localhost:8083/calibre
+  - Lou's main book collection
+  - Default library for browsing
+
+Additional Libraries (Manual Setup Required):
+1. Intake Library: /mnt/media/data/Intake
+   - New acquisitions and processing
+
+2. Blizzard Library: /mnt/media/data/blizzard  
+   - Gaming and Blizzard Entertainment content
+
+3. Cookbooks Library: /mnt/media/data/Cookbooks
+   - Culinary and recipe collections
+
+4. D&D Library: /mnt/media/data/D&D
+   - Dungeons & Dragons rulebooks and modules
+
+5. New Library: /mnt/media/data/New
+   - Recently added or unprocessed content
+
+6. WarHammer Fantasy Library: /mnt/media/data/WarHammer Fantasy
+   - Warhammer Fantasy fiction and lore
+
+SETUP INSTRUCTIONS:
+- Primary access via: http://localhost:8083/calibre
+- To switch libraries: Stop server, change path, restart
+- For multiple simultaneous access: Run additional instances on different ports

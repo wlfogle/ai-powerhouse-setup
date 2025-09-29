@@ -2,7 +2,7 @@
 # HDHomeRun Manager for Garuda Media Stack
 # Manages OTA TV recording and streaming via HDHomeRun Connect
 
-SCRIPT_DIR="/home/lou/garuda-media-stack"
+SCRIPT_DIR="$HOME/garuda-media-stack"
 CONFIG_DIR="$SCRIPT_DIR/config"
 RECORDINGS_DIR="$SCRIPT_DIR/recordings/ota"
 STREAMS_DIR="$SCRIPT_DIR/streams"

@@ -191,7 +191,12 @@ mkdir -p overlay/usr/local/bin/
 mkdir -p overlay/etc/systemd/system/
 
 # Copy our AI powerhouse setup to skeleton
-cp -r /home/garuda/ai-powerhouse-setup overlay/etc/skel/
+# Use current user's setup directory or fallback to relative path
+SETUP_SOURCE="${SETUP_SOURCE:-${HOME}/ai-powerhouse-setup}"
+if [[ ! -d "$SETUP_SOURCE" ]]; then
+    SETUP_SOURCE="$(dirname "$(dirname "$(realpath "$0")")")" # Go up two levels from installation/ to project root
+fi
+cp -r "$SETUP_SOURCE" overlay/etc/skel/
 
 # Create post-install script
 cat > overlay/usr/local/bin/ai-powerhouse-setup << 'EOF'
@@ -325,7 +330,9 @@ log "Starting ISO build process (this may take 30-60 minutes)..."
 ./garuda-tools/tools/buildiso -p ai-powerhouse-profile -k linux
 
 # Move the completed ISO to a more accessible location
-OUTPUT_DIR="/home/garuda/ai-powerhouse-iso"
+# Use environment variable or default to user's home directory
+DEFAULT_OUTPUT="${HOME}/ai-powerhouse-iso"
+OUTPUT_DIR="${ISO_OUTPUT_DIR:-$DEFAULT_OUTPUT}"
 mkdir -p "$OUTPUT_DIR"
 
 if [ -f out/*.iso ]; then

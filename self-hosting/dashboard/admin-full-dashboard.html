@@ -302,6 +302,7 @@
                 <a href="http://localhost:13378" class="quick-link" target="_blank">🎧 Audiobooks</a>
                 <a href="http://localhost:3030" class="quick-link" target="_blank">⚡ Pulsarr</a>
                 <a href="http://localhost:5055" class="quick-link" target="_blank">🔍 Jellyseerr</a>
+                <a href="http://localhost:8000" class="quick-link" target="_blank">🔐 Vaultwarden</a>
             </div>
         </div>
         
@@ -436,6 +437,12 @@
                     <a href="#" class="service-link" onclick="checkProxy()">Check</a>
                 </div>
                 <div class="service-item">
+                    <span class="service-name">Vaultwarden</span>
+                    <span class="service-port">:8000</span>
+                    <div class="service-status" id="vaultwarden-status"></div>
+                    <a href="http://localhost:8000" class="service-link" target="_blank">Open</a>
+                </div>
+                <div class="service-item">
                     <span class="service-name">Firewall (UFW)</span>
                     <span class="service-port">System</span>
                     <div class="service-status" id="firewall-status"></div>
@@ -548,7 +555,7 @@
             const services = [
                 'jellyfin', 'plex', 'radarr', 'sonarr', 'lidarr', 
                 'readarr', 'qbittorrent', 'jackett', 'calibre-web', 
-                'audiobookshelf', 'jellyseerr', 'pulsarr'
+                'audiobookshelf', 'jellyseerr', 'pulsarr', 'vaultwarden'
             ];
             
             let activeCount = 0;

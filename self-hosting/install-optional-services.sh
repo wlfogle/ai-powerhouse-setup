@@ -129,6 +129,29 @@ start_calibre_server() {
     log "✅ Calibre server started on port 8083"
 }
 
+install_vaultwarden() {
+    log "🔐 Installing Vaultwarden Password Manager..."
+    
+    # Check if already running
+    if systemctl is-active --quiet vaultwarden 2>/dev/null; then
+        log "✅ Vaultwarden is already running - skipping installation"
+        return 0
+    fi
+    
+    # Run the dedicated installer
+    local installer_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/install-vaultwarden.sh"
+    
+    if [[ -f "$installer_script" ]]; then
+        log "Running Vaultwarden installer..."
+        bash "$installer_script"
+        return $?
+    else
+        error "Vaultwarden installer not found at $installer_script"
+        log "💡 You can install Vaultwarden manually using the dedicated installer"
+        return 1
+    fi
+}
+
 show_service_status() {
     log "📊 Checking service status..."
     
@@ -148,6 +171,7 @@ show_service_status() {
         "8787:Readarr"
         "5055:Jellyseerr"
         "13378:AudioBookShelf"
+        "8222:Vaultwarden"
     )
     
     for service in "${services[@]}"; do
@@ -186,11 +210,15 @@ case "$1" in
     "calibre")
         start_calibre_server
         ;;
+    "vaultwarden")
+        install_vaultwarden
+        ;;
     "all")
         log "🚀 Installing all optional services..."
         install_readarr
         install_jellyseerr  
         install_audiobookshelf
+        install_vaultwarden
         fix_qbittorrent
         start_calibre_server
         sleep 5
@@ -200,12 +228,13 @@ case "$1" in
         show_service_status
         ;;
     *)
-        echo "Usage: $0 {readarr|jellyseerr|audiobookshelf|qbittorrent|calibre|all|status}"
+        echo "Usage: $0 {readarr|jellyseerr|audiobookshelf|vaultwarden|qbittorrent|calibre|all|status}"
         echo ""
         echo "🔧 Install Optional Media Stack Services"
         echo "  readarr      - Install Readarr (books/ebooks)"
         echo "  jellyseerr   - Install Jellyseerr (request management)" 
         echo "  audiobookshelf - Install AudioBookShelf (audiobooks)"
+        echo "  vaultwarden  - Install Vaultwarden (password manager)"
         echo "  qbittorrent  - Fix qBittorrent authorization"
         echo "  calibre      - Start Calibre web server"
         echo "  all          - Install all services"

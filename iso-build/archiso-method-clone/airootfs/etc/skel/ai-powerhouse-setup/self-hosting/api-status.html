@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garuda Media Stack - API Status</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { text-align: center; margin-bottom: 30px; }
+        .endpoint {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        .endpoint a {
+            color: #64ffda;
+            text-decoration: none;
+        }
+        .endpoint a:hover {
+            text-decoration: underline;
+        }
+        .working { border-left: 4px solid #4caf50; }
+        .note {
+            background: rgba(255, 193, 7, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Garuda Media Stack - API Server</h1>
+        
+        <div class="endpoint working">
+            <h3>📊 System Stats</h3>
+            <a href="http://localhost:8787/api/system/stats">http://localhost:8787/api/system/stats</a>
+            <p>Shows uptime, VPN clients, disk usage</p>
+        </div>
+        
+        <div class="endpoint working">
+            <h3>🔥 FlareSolverr Status</h3>
+            <a href="http://localhost:8787/api/status/flaresolverr">http://localhost:8787/api/status/flaresolverr</a>
+            <p>Check if FlareSolverr is running</p>
+        </div>
+        
+        <div class="endpoint working">
+            <h3>🎬 Jellyfin Status</h3>
+            <a href="http://localhost:8787/api/status/jellyfin">http://localhost:8787/api/status/jellyfin</a>
+            <p>Check if Jellyfin is running</p>
+        </div>
+        
+        <div class="endpoint working">
+            <h3>📺 Sonarr Status</h3>
+            <a href="http://localhost:8787/api/status/sonarr">http://localhost:8787/api/status/sonarr</a>
+            <p>Check if Sonarr is running</p>
+        </div>
+        
+        <div class="endpoint working">
+            <h3>🎬 Radarr Status</h3>
+            <a href="http://localhost:8787/api/status/radarr">http://localhost:8787/api/status/radarr</a>
+            <p>Check if Radarr is running</p>
+        </div>
+        
+        <div class="endpoint working">
+            <h3>🔍 Jackett Status</h3>
+            <a href="http://localhost:8787/api/status/jackett">http://localhost:8787/api/status/jackett</a>
+            <p>Check if Jackett is running</p>
+        </div>
+        
+        <div class="endpoint working">
+            <h3>🌐 Stream Status</h3>
+            <a href="http://localhost:8787/api/stream-status">http://localhost:8787/api/stream-status</a>
+            <p>Check active WWE/AEW/Saints streams</p>
+        </div>
+        
+        <div class="endpoint working">
+            <h3>👻 Ghost Mode Status</h3>
+            <a href="http://localhost:8787/api/ghost-mode/status">http://localhost:8787/api/ghost-mode/status</a>
+            <p>Check VPN routing status</p>
+        </div>
+        
+        <div class="note">
+            <h3>💡 Note</h3>
+            <p>The API server only responds to specific endpoints listed above. 
+               The root path (/) shows a 404 error, which is normal behavior.</p>
+            <p><strong>Main Dashboard:</strong> <a href="http://localhost:8080">http://localhost:8080</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏠 Grandma's Media Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.5em;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: #667eea;
+        }
+
+        .service-card.media-server {
+            border-color: #e74c3c;
+        }
+
+        .service-card.content-manager {
+            border-color: #3498db;
+        }
+
+        .service-card.download {
+            border-color: #2ecc71;
+        }
+
+        .service-card.reading {
+            border-color: #f39c12;
+        }
+
+        .service-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .service-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .service-description {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .service-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .service-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-left: 10px;
+            position: relative;
+        }
+
+        .status-indicator.online {
+            background: #2ecc71;
+            box-shadow: 0 0 10px #2ecc71;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.offline {
+            background: #e74c3c;
+            box-shadow: 0 0 10px #e74c3c;
+        }
+
+        .status-indicator.unknown {
+            background: #95a5a6;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .system-status {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .system-status h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .status-item strong {
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        .quick-actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .quick-action:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Mobile optimization */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .header p {
+                font-size: 1.2em;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .service-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏠 Grandma's Media Center</h1>
+        <p>Your complete entertainment system - made simple!</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Media Servers -->
+        <div class="service-card media-server">
+            <div class="service-icon">🎬</div>
+            <div class="service-title">
+                Watch Movies & TV
+                <span class="status-indicator online" id="jellyfin-status"></span>
+            </div>
+            <div class="service-description">
+                Access your complete movie and TV show library. Everything organized and ready to watch!
+            </div>
+            <a href="http://localhost:8096" class="service-button" target="_blank">Open Jellyfin</a>
+        </div>
+
+        <div class="service-card media-server">
+            <div class="service-icon">🎭</div>
+            <div class="service-title">
+                Premium Movies
+                <span class="status-indicator online" id="plex-status"></span>
+            </div>
+            <div class="service-description">
+                Your premium Plex library with enhanced features and beautiful interface.
+            </div>
+            <a href="http://localhost:32400/web" class="service-button" target="_blank">Open Plex</a>
+        </div>
+
+        <!-- Content Management -->
+        <div class="service-card content-manager">
+            <div class="service-icon">🎪</div>
+            <div class="service-title">
+                Find New Movies
+                <span class="status-indicator online" id="radarr-status"></span>
+            </div>
+            <div class="service-description">
+                Automatically find and download new movies. Just search and we'll get them for you!
+            </div>
+            <a href="http://localhost:7878" class="service-button" target="_blank">Movie Manager</a>
+        </div>
+
+        <div class="service-card content-manager">
+            <div class="service-icon">📺</div>
+            <div class="service-title">
+                Find New TV Shows
+                <span class="status-indicator online" id="sonarr-status"></span>
+            </div>
+            <div class="service-description">
+                Track your favorite TV series and get new episodes automatically.
+            </div>
+            <a href="http://localhost:8989" class="service-button" target="_blank">TV Manager</a>
+        </div>
+
+        <div class="service-card content-manager">
+            <div class="service-icon">🎵</div>
+            <div class="service-title">
+                Music Library
+                <span class="status-indicator unknown" id="lidarr-status"></span>
+            </div>
+            <div class="service-description">
+                Manage your music collection and discover new artists automatically.
+            </div>
+            <a href="http://localhost:8686" class="service-button" target="_blank">Music Manager</a>
+        </div>
+
+        <!-- Reading & Listening -->
+        <div class="service-card reading">
+            <div class="service-icon">📚</div>
+            <div class="service-title">
+                Digital Books
+                <span class="status-indicator unknown" id="calibre-status"></span>
+            </div>
+            <div class="service-description">
+                Your personal digital library. Read books on any device, anywhere.
+            </div>
+            <a href="http://localhost:8083" class="service-button" target="_blank">Book Library</a>
+        </div>
+
+        <div class="service-card reading">
+            <div class="service-icon">🎧</div>
+            <div class="service-title">
+                Audiobooks & Podcasts
+                <span class="status-indicator unknown" id="audiobookshelf-status"></span>
+            </div>
+            <div class="service-description">
+                Listen to audiobooks and podcasts with bookmark syncing across devices.
+            </div>
+            <a href="http://localhost:13378" class="service-button" target="_blank">Audio Library</a>
+        </div>
+
+        <!-- Download Management -->
+        <div class="service-card download">
+            <div class="service-icon">⬇️</div>
+            <div class="service-title">
+                Download Manager
+                <span class="status-indicator online" id="qbittorrent-status"></span>
+            </div>
+            <div class="service-description">
+                Monitor and manage all your downloads in one place.
+            </div>
+            <a href="http://localhost:5080" class="service-button" target="_blank">Downloads</a>
+        </div>
+
+        <div class="service-card download">
+            <div class="service-icon">🔍</div>
+            <div class="service-title">
+                Search Everything
+                <span class="status-indicator online" id="jackett-status"></span>
+            </div>
+            <div class="service-description">
+                Find content across all sources. The search engine for your media.
+            </div>
+            <a href="http://localhost:9117" class="service-button" target="_blank">Search Engine</a>
+        </div>
+    </div>
+
+    <div class="system-status">
+        <h2>📊 System Status</h2>
+        <div class="status-grid">
+            <div class="status-item">
+                <strong>🖥️ System Load</strong><br>
+                <span id="system-load">Checking...</span>
+            </div>
+            <div class="status-item">
+                <strong>💾 Memory Usage</strong><br>
+                <span id="memory-usage">Checking...</span>
+            </div>
+            <div class="status-item">
+                <strong>💿 Disk Usage</strong><br>
+                <span id="disk-usage">Checking...</span>
+            </div>
+            <div class="status-item">
+                <strong>🌡️ System Temperature</strong><br>
+                <span id="system-temp">Checking...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <a href="javascript:void(0)" onclick="refreshStatus()" class="quick-action">🔄 Refresh Status</a>
+        <a href="javascript:void(0)" onclick="showHelp()" class="quick-action">❓ Need Help?</a>
+        <a href="javascript:void(0)" onclick="showSettings()" class="quick-action">⚙️ Settings</a>
+    </div>
+
+    <div class="footer">
+        <p>🏠 Garuda Media Stack | Native Installation | Made with ❤️ for easy use</p>
+        <p>Last updated: <span id="last-update">Loading...</span></p>
+    </div>
+
+    <script>
+        // Service status checking
+        const services = {
+            jellyfin: { port: 8096, element: 'jellyfin-status' },
+            plex: { port: 32400, element: 'plex-status' },
+            radarr: { port: 7878, element: 'radarr-status' },
+            sonarr: { port: 8989, element: 'sonarr-status' },
+            lidarr: { port: 8686, element: 'lidarr-status' },
+            calibre: { port: 8083, element: 'calibre-status' },
+            audiobookshelf: { port: 13378, element: 'audiobookshelf-status' },
+            qbittorrent: { port: 5080, element: 'qbittorrent-status' },
+            jackett: { port: 9117, element: 'jackett-status' }
+        };
+
+        async function checkServiceStatus(service, port) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+                
+                const response = await fetch(`http://localhost:${port}`, {
+                    method: 'HEAD',
+                    mode: 'no-cors',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function updateServiceStatuses() {
+            for (const [serviceName, config] of Object.entries(services)) {
+                const statusElement = document.getElementById(config.element);
+                const isOnline = await checkServiceStatus(serviceName, config.port);
+                
+                statusElement.className = `status-indicator ${isOnline ? 'online' : 'offline'}`;
+                statusElement.title = isOnline ? 'Service is running' : 'Service is offline';
+            }
+        }
+
+        function refreshStatus() {
+            document.getElementById('last-update').textContent = new Date().toLocaleString();
+            updateServiceStatuses();
+            updateSystemStats();
+        }
+
+        function updateSystemStats() {
+            // Simulated system stats (in a real implementation, these would come from an API)
+            document.getElementById('system-load').textContent = 'Low (Normal)';
+            document.getElementById('memory-usage').textContent = '45% (Good)';
+            document.getElementById('disk-usage').textContent = '67% (OK)';
+            document.getElementById('system-temp').textContent = '42°C (Normal)';
+        }
+
+        function showHelp() {
+            alert(`🆘 Need Help?
+
+Here's how to use your media center:
+
+🎬 WATCHING:
+• Click "Watch Movies & TV" for your main library
+• Click "Premium Movies" for enhanced features
+
+🔍 FINDING NEW CONTENT:
+• Use "Find New Movies" to search for films
+• Use "Find New TV Shows" for series
+• Use "Search Everything" to find anything
+
+📚 READING & LISTENING:
+• Click "Digital Books" for ebooks
+• Click "Audiobooks & Podcasts" for audio content
+
+⬇️ DOWNLOADS:
+• Check "Download Manager" to see progress
+• Everything downloads automatically!
+
+❓ Still need help? Call the tech support person who set this up for you!`);
+        }
+
+        function showSettings() {
+            if (confirm('⚙️ Settings are for advanced users. Continue?')) {
+                window.open('/settings', '_blank');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshStatus();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(refreshStatus, 30000);
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F5') {
+                e.preventDefault();
+                refreshStatus();
+            }
+            if (e.key === 'h' || e.key === 'H') {
+                showHelp();
+            }
+        });
+    </script>
+</body>
+</html>

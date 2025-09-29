@@ -1,0 +1,98 @@
+# Base System & Bootloader
+base
+bash
+bash-completion
+linux-zen
+linux-firmware
+mkinitcpio
+mkinitcpio-archiso
+squashfs-tools
+syslinux
+grub
+efibootmgr
+edk2-shell
+memtest86+
+memtest86+-efi
+
+# Garuda Specific
+chaotic-keyring
+chaotic-mirrorlist
+garuda-hooks
+garuda-hotfixes
+garuda-libs
+
+# Display & Graphics
+nvidia-dkms
+xorg-server
+xorg-xwayland
+xorg-xhost
+xorg-xinit
+xorg-xinput
+
+# Audio
+pipewire
+pipewire-pulse
+pipewire-jack
+pipewire-alsa
+wireplumber
+lib32-pipewire-jack
+
+# Desktop Environment - XFCE
+xfce4
+xfce4-goodies
+lightdm
+lightdm-gtk-greeter
+lightdm-gtk-greeter-settings
+
+# Essential Applications
+firefox
+alacritty
+thunar
+mousepad
+file-manager
+nano
+neovim
+
+# Development Tools
+git
+code
+python
+python-pip
+nodejs
+npm
+
+# AI & Machine Learning (Essential)
+python-pytorch
+python-tensorflow
+python-numpy
+python-pandas
+python-matplotlib
+python-scikit-learn
+ollama
+jupyter-console
+
+# Networking
+networkmanager
+firewalld
+nm-connection-editor
+
+# Media
+vlc
+mpv
+ffmpeg
+
+# Utilities
+htop
+btop
+tree
+curl
+wget
+unzip
+p7zip
+
+# Gaming (Optional)
+steam
+
+# System Tools
+gparted
+timeshift

@@ -1,0 +1,47 @@
+{
+  "app_title": "MobaLiveCD",
+  "welcome_title": "Bienvenue dans MobaLiveCD",
+  "welcome_description": "Ce programme permet de tester vos CD-ROM amorçables (LiveCD) grâce à la virtualisation QEMU. Vous pouvez soit configurer les associations de fichiers pour les images ISO, soit lancer directement un fichier ISO LiveCD.",
+  
+  "association_title": "Association de fichiers",
+  "association_description": "Installer l'association du menu contextuel",
+  "association_subtitle": "Ajouter 'Ouvrir avec MobaLiveCD' au menu contextuel des fichiers ISO",
+  "install_association": "Installer l'association",
+  "remove_association": "Supprimer",
+  
+  "livecd_title": "Démarrer LiveCD",
+  "livecd_description": "Choisir et lancer un fichier image ISO",
+  "livecd_subtitle": "Parcourir votre disque pour sélectionner un fichier ISO et le démarrer avec QEMU",
+  "no_iso_selected": "Aucun fichier ISO sélectionné",
+  "browse": "Parcourir...",
+  "run_livecd": "Lancer le LiveCD",
+  "starting_qemu": "Démarrage de QEMU...",
+  
+  "menu_help": "Aide",
+  "menu_about": "À propos",
+  "exit": "Quitter",
+  
+  "select_iso_title": "Sélectionner un fichier ISO",
+  "iso_files": "Fichiers image ISO",
+  "all_files": "Tous les fichiers",
+  "cancel": "_Annuler",
+  "open": "_Ouvrir",
+  
+  "selected": "Sélectionné : %s",
+  "invalid_iso": "Fichier ISO non valide sélectionné",
+  "failed_qemu": "Échec du démarrage de QEMU : %s",
+  "association_installed": "Association de fichiers installée avec succès !",
+  "association_removed": "Association de fichiers supprimée avec succès !",
+  "association_install_failed": "Échec de l'installation de l'association : %s",
+  "association_remove_failed": "Échec de la suppression de l'association : %s",
+  
+  "help_title": "MobaLiveCD - Aide",
+  "vm_controls_title": "Contrôles de la machine virtuelle",
+  "vm_controls_description": "Pendant l'émulation, vous pouvez utiliser les raccourcis clavier suivants :",
+  "usage_tips_title": "Conseils d'utilisation",
+  "system_requirements_title": "Configuration requise",
+  "close": "Fermer",
+  
+  "about_comments": "Un outil de test de LiveCD/ISO basé sur QEMU pour Linux",
+  "about_copyright": "© 2024 Port Linux"
+}

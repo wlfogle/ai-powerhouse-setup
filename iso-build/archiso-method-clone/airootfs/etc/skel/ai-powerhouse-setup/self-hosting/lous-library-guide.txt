@@ -1,0 +1,39 @@
+# LOU'S LIBRARY CONFIGURATION
+
+## Main Library
+- Path: /mnt/media/data/Lou's Library
+- Access: http://localhost:8083
+- Purpose: Consolidated main book collection
+
+## Staging Directories (Books waiting to be added)
+These directories contain books that need to be processed and added to Lou's Library:
+
+1. Intake: /mnt/media/data/Intake
+   - General intake queue
+
+2. Blizzard: /mnt/media/data/blizzard
+   - Gaming-related books to be catalogued
+
+3. Cookbooks: /mnt/media/data/Cookbooks
+   - Culinary books to be added
+
+4. D&D: /mnt/media/data/D&D
+   - Tabletop gaming books to be processed
+
+5. New: /mnt/media/data/New
+   - Recently acquired books
+
+6. WarHammer Fantasy: /mnt/media/data/WarHammer Fantasy
+   - Warhammer fiction and lore books
+
+## Library Management Workflow
+1. Books arrive in staging directories
+2. Use Calibre desktop app to add books from staging dirs to Lou's Library
+3. After adding, books can be moved/deleted from staging directories
+4. Lou's Library serves as the single source of truth
+
+## Adding Books from Staging
+- Use Calibre desktop: Add Books → Browse to staging directory
+- Select books to import into Lou's Library
+- Set metadata and organize as needed
+- Clean up staging directory after import

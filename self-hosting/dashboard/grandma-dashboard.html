@@ -347,6 +347,32 @@
             </div>
             <a href="http://localhost:9117" class="service-button" target="_blank">Search Engine</a>
         </div>
+
+        <!-- Request Management -->
+        <div class="service-card content-manager">
+            <div class="service-icon">📋</div>
+            <div class="service-title">
+                Request Movies & Shows
+                <span class="status-indicator online" id="jellyseerr-status"></span>
+            </div>
+            <div class="service-description">
+                Request new movies and TV shows. Easy way to ask for content you want to watch.
+            </div>
+            <a href="http://localhost:5055" class="service-button" target="_blank">Make Requests</a>
+        </div>
+
+        <!-- Book Management -->
+        <div class="service-card reading">
+            <div class="service-icon">📖</div>
+            <div class="service-title">
+                Book Manager
+                <span class="status-indicator online" id="readarr-status"></span>
+            </div>
+            <div class="service-description">
+                Automatically find and download new books and ebooks for your reading pleasure.
+            </div>
+            <a href="http://localhost:8787" class="service-button" target="_blank">Book Library</a>
+        </div>
     </div>
 
     <div class="system-status">
@@ -393,7 +419,9 @@
             calibre: { port: 8083, element: 'calibre-status' },
             audiobookshelf: { port: 13378, element: 'audiobookshelf-status' },
             qbittorrent: { port: 5080, element: 'qbittorrent-status' },
-            jackett: { port: 9117, element: 'jackett-status' }
+            jackett: { port: 9117, element: 'jackett-status' },
+            jellyseerr: { port: 5055, element: 'jellyseerr-status' },
+            readarr: { port: 8787, element: 'readarr-status' }
         };
 
         async function checkServiceStatus(service, port) {
@@ -450,11 +478,13 @@ Here's how to use your media center:
 🔍 FINDING NEW CONTENT:
 • Use "Find New Movies" to search for films
 • Use "Find New TV Shows" for series
+• Use "Make Requests" to request specific content
 • Use "Search Everything" to find anything
 
 📚 READING & LISTENING:
 • Click "Digital Books" for ebooks
 • Click "Audiobooks & Podcasts" for audio content
+• Use "Book Manager" to find new books automatically
 
 ⬇️ DOWNLOADS:
 • Check "Download Manager" to see progress

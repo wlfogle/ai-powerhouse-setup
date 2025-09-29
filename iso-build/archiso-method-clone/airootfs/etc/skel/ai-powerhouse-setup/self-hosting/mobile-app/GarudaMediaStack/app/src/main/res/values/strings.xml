@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Garuda Media Stack</string>
+    <string name="server_ip">192.168.12.172</string>
+    
+    <!-- Service URLs -->
+    <string name="jellyfin_url">http://192.168.12.172:8096</string>
+    <string name="calibre_url">http://192.168.12.172:8083</string>
+    <string name="radarr_url">http://192.168.12.172:7878</string>
+    <string name="sonarr_url">http://192.168.12.172:8989</string>
+    <string name="lidarr_url">http://192.168.12.172:8686</string>
+    <string name="readarr_url">http://192.168.12.172:8787</string>
+    <string name="qbittorrent_url">http://192.168.12.172:5080</string>
+    <string name="jackett_url">http://192.168.12.172:9117</string>
+    
+    <!-- Messages -->
+    <string name="loading">Loading...</string>
+    <string name="connection_error">Connection Error</string>
+    <string name="check_network">Please check your network connection</string>
+</resources>

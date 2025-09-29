@@ -1,0 +1,15 @@
+# Minimal packages for archiso - the actual system comes from the clone
+base
+linux
+linux-firmware
+mkinitcpio
+mkinitcpio-archiso
+squashfs-tools
+# Bootloader packages
+syslinux
+grub
+efibootmgr
+# Optional packages
+edk2-shell
+memtest86+
+memtest86+-efi
